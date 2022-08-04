@@ -87,8 +87,8 @@ class PickSheet extends Component {
       console.log('respGetPlayers', respGetPlayers.data.length)
 
       this.setState({
-        players: respGetPlayers.data,
-        usersGroup: respGetPlayers.data.filter(p => p.user.group === this.props.user.group._id),
+        players: respGetPlayers.data.filter(p => p.user.group === group),
+        usersGroup: respGetPlayers.data.filter(p => p.user.group === group),
       })
     }
 
@@ -2429,6 +2429,7 @@ class PickSheet extends Component {
                 this.setState({
                   usersGroup: this.state.players.filter(p => p.user.group === this.state.group._id),
                 })
+                console.log(this.state.group._id, this.state.week, this.props.currentYear + '', this.props.token)
 
                 this.getAllPlayersAndGroup(
                   this.state.group._id,
@@ -2452,8 +2453,9 @@ class PickSheet extends Component {
                 week: index + 1,
                 players: [],
               })
+            console.log(this.state.group._id, `${index + 1}`, this.props.currentYear + '', this.props.token)
             this.getAllPlayersAndGroup(
-              this.props.user.group._id,
+              this.state.group._id,
               `${index + 1}`,
               this.props.currentYear + '',
               this.props.token,

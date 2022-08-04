@@ -46,7 +46,7 @@ class searchplayer extends Component {
                   this.setState({ users: respGetPlayers.data })
                 }
               } else {
-                const respGetPlayers = await getPlayers('_____', this.props.token)
+                const respGetPlayers = await getPlayers('XXXXXXX', this.props.token)
                 if (respGetPlayers && respGetPlayers.data) {
                   console.log('respGetPlayers', respGetPlayers.data.length)
                   this.setState({ users: respGetPlayers.data })

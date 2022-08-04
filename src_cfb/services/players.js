@@ -121,7 +121,7 @@ export const getPlayer = (playerId, token) => {
 }
 export const getPlayers = (data, token) => {
   try {
-    const query = `${SERVER}/users?fullname_contains=${data}`
+    const query = `${SERVER}/users?username_contains=${data}` //`_where[_or][0][username_contains]=${data}&_where[_or][1][fullname_contains]=${data}`
 
     return axios.get(query, {
       headers: {
