@@ -2,13 +2,17 @@
 import { teams } from '../datas/teams'
 
 const gameString = game => {
-  let favorite = game.PointSpread && game.PointSpread < 0 ? '@' + game.HomeTeam : game.AwayTeam
-  let dog = game.PointSpread && game.PointSpread > 0 ? '@' + game.HomeTeam : game.AwayTeam
+  if (game) {
+    let favorite = game.PointSpread && game.PointSpread < 0 ? '@' + game.HomeTeam : game.AwayTeam
+    let dog = game.PointSpread && game.PointSpread > 0 ? '@' + game.HomeTeam : game.AwayTeam
 
-  //console.log(JSON.stringify(game, null, 2));
-  return `${favorite} (${(game.PointSpread && game.PointSpread) || '~~'}) - ${dog} (${
-    (game.OverUnder && game.OverUnder) || '~~'
-  }) `
+    //console.log(JSON.stringify(game, null, 2));
+    return `${favorite} (${(game.PointSpread && game.PointSpread) || '~~'}) - ${dog} (${
+      (game.OverUnder && game.OverUnder) || '~~'
+    }) `
+  } else {
+    return ''
+  }
 }
 const getTeamById = id => {
   let res = teams.filter(f => f.TeamID === id)

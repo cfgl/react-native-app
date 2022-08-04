@@ -26,7 +26,7 @@ import { setUserRank } from '../redux/actions/user'
 import ProfileStats from './profileStats'
 import { conferenceGroup } from '../datas/conference'
 import { RFValue } from 'react-native-responsive-fontsize'
-import { getAllPlayers, getAllPlayersByWeek, getPlayerResults } from '../services/players'
+import { getAllPlayersByWeek, getPlayerResults } from '../services/players'
 import { getAllWeekBets } from '../services/games'
 
 import {
@@ -449,114 +449,116 @@ class feeds extends Component {
       <View style={{ flex: 1 }}>
         <StatusBar backgroundColor={gris} barStyle="light-content" />
 
-        <View>
-          {parseFloat(
-            (new Date(`${this.props.weekstartdate[this.props.currentWeek - 1].date}.000Z`).getTime() -
-              new Date().getTime()) /
-              (24 * 3600 * 1000),
-          ) > 0 ? (
-            <View
-              style={{
-                paddingVertical: 10,
-                width: '100%',
-                backgroundColor: '#edd798',
-                justifyContent: 'space-between',
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 10,
-              }}>
-              <Text
+        {this.props.weekstartdate && this.props.weekstartdate[this.props.currentWeek - 1] && (
+          <View>
+            {parseFloat(
+              (new Date(`${this.props.weekstartdate[this.props.currentWeek - 1].date}.000Z`).getTime() -
+                new Date().getTime()) /
+                (24 * 3600 * 1000),
+            ) > 0 ? (
+              <View
                 style={{
-                  color: '#191919',
-                  fontFamily: 'monda',
-                  fontSize: RFValue(12),
-                  fontWeight: '700',
-                }}>
-                {`WEEK ${this.props.currentWeek} STARTS IN ${
-                  parseInt(
-                    (new Date(`${this.props.weekstartdate[this.props.currentWeek - 1].date}.000Z`).getTime() -
-                      new Date().getTime()) /
-                      (24 * 3600 * 1000),
-                  ) < 1
-                    ? parseInt(
-                        (new Date(`${this.props.weekstartdate[this.props.currentWeek - 1].date}.000Z`).getTime() -
-                          new Date().getTime()) /
-                          (3600 * 1000),
-                      ) + ' HOURS'
-                    : parseInt(
-                        (new Date(`${this.props.weekstartdate[this.props.currentWeek - 1].date}.000Z`).getTime() -
-                          new Date().getTime()) /
-                          (24 * 3600 * 1000),
-                      ) + 'DAY(S)'
-                } `}
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  this.props.props.navigation.navigate('Scores')
-                }}
-                style={{
-                  width: RFValue(132),
-                  height: RFValue(30),
+                  paddingVertical: 10,
+                  width: '100%',
+                  backgroundColor: '#edd798',
+                  justifyContent: 'space-between',
+                  flexDirection: 'row',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#191919',
+                  paddingHorizontal: 10,
                 }}>
                 <Text
                   style={{
-                    color: '#edd798',
+                    color: '#191919',
                     fontFamily: 'monda',
-                    fontSize: RFValue(10),
+                    fontSize: RFValue(12),
                     fontWeight: '700',
                   }}>
-                  LIVE SCORES
+                  {`WEEK ${this.props.currentWeek} STARTS IN ${
+                    parseInt(
+                      (new Date(`${this.props.weekstartdate[this.props.currentWeek - 1].date}.000Z`).getTime() -
+                        new Date().getTime()) /
+                        (24 * 3600 * 1000),
+                    ) < 1
+                      ? parseInt(
+                          (new Date(`${this.props.weekstartdate[this.props.currentWeek - 1].date}.000Z`).getTime() -
+                            new Date().getTime()) /
+                            (3600 * 1000),
+                        ) + ' HOURS'
+                      : parseInt(
+                          (new Date(`${this.props.weekstartdate[this.props.currentWeek - 1].date}.000Z`).getTime() -
+                            new Date().getTime()) /
+                            (24 * 3600 * 1000),
+                        ) + 'DAY(S)'
+                  } `}
                 </Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View
-              style={{
-                width: '100%',
-                backgroundColor: '#edd798',
-                justifyContent: 'space-between',
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 10,
-                paddingVertical: 10,
-              }}>
-              <Text
+                <TouchableOpacity
+                  onPress={() => {
+                    this.props.props.navigation.navigate('Scores')
+                  }}
+                  style={{
+                    width: RFValue(132),
+                    height: RFValue(30),
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#191919',
+                  }}>
+                  <Text
+                    style={{
+                      color: '#edd798',
+                      fontFamily: 'monda',
+                      fontSize: RFValue(10),
+                      fontWeight: '700',
+                    }}>
+                    LIVE SCORES
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View
                 style={{
-                  color: '#191919',
-                  fontFamily: 'monda',
-                  fontSize: RFValue(12),
-                  fontWeight: '700',
+                  width: '100%',
+                  backgroundColor: '#edd798',
+                  justifyContent: 'space-between',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 10,
+                  paddingVertical: 10,
                 }}>
-                {`WEEK  ${this.props.currentWeek} HAS STARTED`}
-              </Text>
+                <Text
+                  style={{
+                    color: '#191919',
+                    fontFamily: 'monda',
+                    fontSize: RFValue(12),
+                    fontWeight: '700',
+                  }}>
+                  {`WEEK  ${this.props.currentWeek} HAS STARTED`}
+                </Text>
 
-              <TouchableOpacity
-                onPress={() => {
-                  this.props.props.navigation.navigate('Scores')
-                }}
-                style={{
-                  width: RFValue(132),
-                  height: RFValue(30),
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#191919',
-                }}>
-                <Text
+                <TouchableOpacity
+                  onPress={() => {
+                    this.props.props.navigation.navigate('Scores')
+                  }}
                   style={{
-                    color: '#edd798',
-                    fontFamily: 'monda',
-                    fontSize: RFValue(10),
-                    fontWeight: '700',
+                    width: RFValue(132),
+                    height: RFValue(30),
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#191919',
                   }}>
-                  LIVE SCORES
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+                  <Text
+                    style={{
+                      color: '#edd798',
+                      fontFamily: 'monda',
+                      fontSize: RFValue(10),
+                      fontWeight: '700',
+                    }}>
+                    LIVE SCORES
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
 
         <ScrollView
           refreshControl={

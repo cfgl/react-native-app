@@ -145,7 +145,7 @@ class Pick extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (
       prevProps.statusGame !== this.props.statusGame &&
-      this.props.statusGame === 'SUCCESS_BET_CREATE' &&
+      this.props.statusGame === 'SUCCESS_BET_CREATE_' &&
       this.props.currentWeek !== CHAMIONSHIPWEEK
     ) {
       let action = this.props.statusGame

@@ -108,7 +108,7 @@ class Pick extends Component {
 
     //this.props.setCurrentSeasonWeek()
 
-    const respGetPlayers = await getAllPlayers(null, this.props.token)
+    const respGetPlayers = await getAllPlayers(null, this.props.currentYear + '', this.props.token)
     if (respGetPlayers && respGetPlayers.data) {
       console.log(respGetPlayers.data.length)
       this.setState({ players: respGetPlayers.data })
@@ -179,38 +179,42 @@ class Pick extends Component {
       this.props.setGameStatus('')
       this.gamesAndBets()
       // alert(JSON.stringify(pushIds))
-      axios
-        .post(
-          `https://onesignal.com/api/v1/notifications`,
-          {
-            app_id: ONSIGNAL_KEY,
-            //subtitle: { "en": `${this.props.user.username} last bet:` },
-            contents: {
-              en: `${gameString(this.state.newBet.game)} | ${this.state.newBet.type.value} | ${
-                this.state.newBet.method.label
-              }`,
+      if (this.state.newBet && this.state.newBet.game) {
+        axios
+          .post(
+            `https://onesignal.com/api/v1/notifications`,
+            {
+              app_id: ONSIGNAL_KEY,
+              //subtitle: { "en": `${this.props.user.username} last bet:` },
+              contents: {
+                en: `${gameString(this.state.newBet.game)} | ${this.state.newBet.type.value} | ${
+                  this.state.newBet.method.label
+                }`,
+              },
+              headings: {
+                en: `${this.props.user.username} ${
+                  action === 'SUCCESS_BET_CREATE' ? ' made a pick' : ' update a pick'
+                }`,
+              },
+              include_player_ids: pushIds,
             },
-            headings: {
-              en: `${this.props.user.username} ${action === 'SUCCESS_BET_CREATE' ? ' made a pick' : ' update a pick'}`,
+            {
+              headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+                Authorization: 'Basic ' + ONSIGNAL_REST_API_KEY,
+              },
             },
-            include_player_ids: pushIds,
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              Authorization: 'Basic ' + ONSIGNAL_REST_API_KEY,
-            },
-          },
-        )
-        .then(function (response) {
-          // handle success
-          console.log('Response:')
-          // console.log(JSON.stringify(response));
-        })
-        .catch(function (error) {
-          // handle error
-          console.log(JSON.stringify(error))
-        })
+          )
+          .then(function (response) {
+            // handle success
+            console.log('Response:')
+            // console.log(JSON.stringify(response));
+          })
+          .catch(function (error) {
+            // handle error
+            console.log(JSON.stringify(error))
+          })
+      }
     } else if (
       prevProps.statusGame !== this.props.statusGame &&
       this.props.statusGame === 'SUCCESS_BET_UPDATE' &&
@@ -306,7 +310,7 @@ class Pick extends Component {
               marginTop: 20,
             }}>
             {
-              'Each game has a set amount of points ranging \nfrom 5 to 25 pts. You can always re-  assign those \npoints value later on.'
+              'Each game has a set amount of points ranging from 5 to 25 pts. You can always re-assign those points value later on.'
             }
           </Text>
         </View>
@@ -565,9 +569,9 @@ class Pick extends Component {
                           //console.log(JSON.stringify(data,null,2));
                           this.setState({ sending: false })
                           this.props.saveBet(data, this.props.token)
-                          setTimeout(() => {
-                            this.gamesAndBets()
-                          }, 3000)
+                          // setTimeout(() => {
+                          //   this.gamesAndBets()
+                          // }, 3000)
                         }
                       }
                     }}

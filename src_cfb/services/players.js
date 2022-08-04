@@ -57,8 +57,8 @@ export const getPlayerResults = (season, token) => {
   }
 }
 
-export const getAllPlayers = (playerId, season = '2021', token) => {
-  console.log('start getAllPlayers')
+export const getAllPlayers = (playerId, season, token) => {
+  console.log('start getAllPlayers' + season)
   try {
     const query = !playerId
       ? `${SERVER}/finalresults/myRank?season=${season}`

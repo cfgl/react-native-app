@@ -537,7 +537,8 @@ class MyPicks extends Component {
               {/* Games list */}
               {this.merge(data, this.props.favorites)
                 .filter(
-                  i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()) && i.Status === 'Scheduled',
+                  i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()),
+                  // && i.Status === 'Scheduled',
                   // && f.Status !== "Final" //comment for testing
                   //  && i.Status === "Scheduled"  //comment for testing
                 )
