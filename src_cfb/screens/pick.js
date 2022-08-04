@@ -95,6 +95,8 @@ class Pick extends Component {
   }
 
   async componentDidMount() {
+    this.setState({ refreshing: true })
+
     this.gamesAndBets()
   }
 
@@ -136,6 +138,8 @@ class Pick extends Component {
             : false,
       })
     }
+
+    this.setState({ refreshing: false })
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -247,7 +251,9 @@ class Pick extends Component {
         style={{
           flex: 1,
         }}
-        refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />}>
+        refreshControl={
+          <RefreshControl tintColor={'#fff'} refreshing={this.state.refreshing} onRefresh={this.onRefresh} />
+        }>
         <StatusBar backgroundColor={gris} barStyle="light-content" />
         {this.state.sending && <Text style={{ color: '#fff', alignSelf: 'center', marginTop: 10 }}>Sending...</Text>}
         {this.props.seasonStatus === 'PREPARING' && (
