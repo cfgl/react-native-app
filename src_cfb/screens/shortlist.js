@@ -62,13 +62,16 @@ class Shortlist extends Component {
     bindingConf = bindingConf === 'Power Conf' ? this.props.user.conferenceCFB : bindingConf
 
     return (
-      <ScrollView refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl tintColor={'#fff'} refreshing={this.state.refreshing} onRefresh={this.onRefresh} />
+        }>
         <Header
           title={`POWER CONFERENCE GAMES (${
             this.props.user && this.props.user.conferenceCFB ? this.props.user.conferenceCFB : ''
           })`}
         />
-        {/* item.AwayTeamInfo.Division === this.props.user.conference.name || */}
+
         {this.state.favorites
           .filter(f => f.Season.toString() === this.props.currentYear.toString() && f.Week === this.props.currentWeek)
           .map((item, index) => {
