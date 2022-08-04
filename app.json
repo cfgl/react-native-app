@@ -1,0 +1,21 @@
+{
+  "name": "cfgl",
+  "displayName": "CFGL",
+  "expo": {
+    "name": "cfgl",
+    "slug": "expo-template-bare",
+    "privacy": "unlisted",
+    "sdkVersion": "36.0.0",
+    "version": "1.0.0",
+    "entryPoint": "node_modules/expo/AppEntry.js",
+    "platforms": ["ios", "android"]
+  },
+  "ios": {
+    "bundleIdentifier": "net.forthegoodoftheleague.com.cfgl",
+    "buildNumber": "1.0.1"
+  },
+  "android": {
+    "package": "com.forthegoodoftheleague",
+    "versionCode": 4
+  }
+}
