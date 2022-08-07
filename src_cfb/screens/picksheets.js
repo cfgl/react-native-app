@@ -44,7 +44,9 @@ const weekList = [
   'Week 11',
   'Week 12',
   'Week 13',
-  'Week 14',
+  'ChampionShip',
+  'Bowl Season',
+
   'Cancel',
 ]
 
@@ -55,7 +57,12 @@ class PickSheet extends Component {
     this.state = {
       visible: false,
       refreshing: false,
-      week: this.props.currentWeek,
+      week:
+        this.props.seasonStatus === 'CHAMPIONSHIP'
+          ? 14
+          : this.props.seasonStatus === 'BOWLSEASON'
+          ? 15
+          : this.props.currentWeek,
       scrollY: new Animated.Value(
         // iOS has negative initial scroll value because content inset...
         Platform.OS === 'ios' ? -HEADER_MAX_HEIGHT : 0,
@@ -75,7 +82,7 @@ class PickSheet extends Component {
   componentDidMount() {
     const { currentWeek, currentYear, user, token } = this.props
     this.getAllGroup()
-    this.getAllPlayersAndGroup(user.group._id, currentWeek, currentYear + '', token)
+    this.getAllPlayersAndGroup(user.group._id, this.state.week, currentYear + '', token)
     this.getAllBowlGames()
   }
 
@@ -124,6 +131,7 @@ class PickSheet extends Component {
     let bet = bets.filter(i => i.week == week && i.game && i.game.GameFull && i.game.GameFull.Title === title)
 
     if (bet.length > 0) {
+      console.log(bet.length)
       console.log(bet[0], title)
       return `${bet[0].betMethod && bet[0].betMethod.value.toUpperCase()} (${bet[0].betType && bet[0].betType.point})`
     } else {
@@ -177,6 +185,7 @@ class PickSheet extends Component {
   }
 
   getGameResultBowl = (bets, title, week) => {
+    console.log(bets.length)
     let bet = bets.filter(i => i.week == week && i.game && i.game.GameFull && i.game.GameFull.Title === title)
 
     if (bet.length > 0) {
@@ -190,8 +199,10 @@ class PickSheet extends Component {
 
   onRefresh = () => {
     this.setState({ refreshing: true })
-    const { currentWeek, currentYear, user, token } = this.props
 
+    const { currentWeek, currentYear, user, token } = this.props
+    this.getAllBowlGames()
+    this.getAllGroup()
     this.getAllPlayersAndGroup(this.state.group._id, this.state.week, currentYear + '', token)
 
     setTimeout(() => {
@@ -306,7 +317,836 @@ class PickSheet extends Component {
               </View>
             </View>
 
-            {this.props.seasonStatus === 'STARTED' ? (
+            {this.state.week === 14 ? (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  borderBottomColor: noir,
+                  borderBottomWidth: 1,
+                }}>
+                <Animated.ScrollView
+                  // pointerEvents="none"
+                  showsHorizontalScrollIndicator={false}
+                  showsVerticalScrollIndicator={false}
+                  style={[styles.fill, { transform: [{ translateY: headerTranslate }] }]}
+                  bounces={false}
+                  contentInset={{
+                    top: 0,
+                  }}
+                  contentOffset={{
+                    y: 0,
+                  }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginTop: 0.4,
+                      alignItems: 'center',
+                      height: 60,
+                    }}>
+                    <Text
+                      style={{
+                        width: 0,
+                        height: 50,
+                        color: '#edd798',
+                        fontFamily: 'Arial',
+                        fontSize: RFValue(14),
+                        fontWeight: '400',
+                        marginLeft: 10,
+                      }}></Text>
+                    <Text
+                      style={{
+                        width: RFValue(150),
+                        color: '#edd798',
+                        fontFamily: 'Arial',
+                        fontSize: RFValue(11),
+                        fontWeight: '500',
+                        marginLeft: 0,
+                      }}>
+                      PLAYERS
+                    </Text>
+                  </View>
+                  {this.state.usersGroup.map((item, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => {
+                        this.props.getHerParlays(item.user._id, this.props.token)
+                        this.props.setHerInfoUser(item.user)
+                        this.props.navigation.navigate('ProfileStatistics')
+                      }}
+                      style={{
+                        //borderRightColor: "rgba(255,255,255,0.05)",
+                        //borderRightWidth: 4,
+                        alignItems: 'center',
+                        backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: 60,
+                      }}>
+                      {Platform.OS === 'ios' && (
+                        <View
+                          style={{
+                            width: RFValue(125),
+                            position: 'absolute',
+                            top: 0,
+                            left: -10,
+                            backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
+
+                            shadowColor: '#000',
+                            shadowOffset: {
+                              width: 5,
+                              height: 8,
+                            },
+                            shadowOpacity: 0.29,
+                            shadowRadius: 4.65,
+                            height: 60,
+                            elevation: 7,
+                          }}
+                        />
+                      )}
+                      <Text
+                        style={{
+                          width: RFValue(150),
+                          color: jaune,
+                          fontFamily: 'Arial',
+                          fontSize: RFValue(10),
+                          fontWeight: '400',
+                          marginLeft: RFValue(40),
+                          paddingVertical: 5,
+                        }}>
+                        #{item.user.username.toUpperCase()}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </Animated.ScrollView>
+                <Animated.ScrollView
+                  horizontal
+                  bounces={false}
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.fill}
+                  scrollEventThrottle={1}
+                  onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: this.state.scrollY } } }], {
+                    useNativeDriver: true,
+                  })}
+                  // iOS offset for RefreshControl
+                  contentInset={{
+                    top: 0,
+                  }}
+                  contentOffset={{
+                    y: 0,
+                  }}>
+                  <View>
+                    <Modal
+                      animationType="slide"
+                      transparent={true}
+                      visible={this.state.visible}
+                      onRequestClose={() => {
+                        this._hideModal()
+                      }}>
+                      <View
+                        style={{
+                          alignSelf: 'center',
+                          marginTop: 50,
+                          height: this.state.selected && this.state.selected.game ? 550 : 100,
+                          width: 300,
+                          backgroundColor: '#fff',
+                        }}>
+                        <TouchableOpacity
+                          onPress={this._hideModal}
+                          style={{ padding: 10, position: 'absolute', top: 10, right: 10, zIndex: 999 }}>
+                          <Text style={{ color: 'red' }}>Close</Text>
+                        </TouchableOpacity>
+                        {this.state.selected && !this.state.selected.game && (
+                          <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+                            <Text style={{ fontSize: 20 }}>{'No Game Found'}</Text>
+                          </View>
+                        )}
+                        {this.state.selected && this.state.selected.game && (
+                          <View style={{ padding: 20, marginTop: 30 }}>
+                            <View
+                              style={{
+                                borderWidth: 1,
+                                borderColor: '#eee',
+                                padding: 10,
+                                marginBottom: 10,
+                              }}>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Game '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.Game}</Text>
+                              </View>
+
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Spread '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.Spread}</Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Over/Under '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.ou}</Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Away Team '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.AwayTeam}</Text>
+                              </View>
+
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Home Team '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.HomeTeam}</Text>
+                              </View>
+
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Fave '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.game.Fave}
+                                </Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Dog '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.game.Dog}
+                                </Text>
+                              </View>
+                            </View>
+                            <View
+                              style={{
+                                borderWidth: 1,
+                                borderColor: '#eee',
+                                padding: 10,
+                              }}>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Bet on '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.betMethod.value.toUpperCase()}
+                                </Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Fav. Score '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.game.FavoriteScore}
+                                </Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Dog Score '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.game.UnderdogScore}
+                                </Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'O/U result '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.game.ou_score}
+                                </Text>
+                              </View>
+
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Score diff. '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.game.FavoriteScore - this.state.selected.game.UnderdogScore}
+                                </Text>
+                              </View>
+
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Win'}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.win ? 'Yes' : 'No'}
+                                </Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Points'}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.points}
+                                </Text>
+                              </View>
+                            </View>
+                            <Text
+                              style={{
+                                fontSize: 10,
+                                marginTop: 10,
+                                color: 'orange',
+                              }}>{`NB: Favorite or Dog team is based on the spread.\nif spread is negative (<0) Home team is favorite else Away team is favorite\n\nSource: https://sportsdata.io`}</Text>
+                          </View>
+                        )}
+                      </View>
+                    </Modal>
+                    <View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          height: 60,
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            width: RFValue(150),
+                            color: '#edd798',
+                            fontFamily: 'Arial',
+                            fontSize: RFValue(10),
+                            fontWeight: '900',
+                            marginLeft: 20,
+                          }}>
+                          {'GAME 1 (25)'}
+                        </Text>
+                        <Text
+                          style={{
+                            width: RFValue(150),
+                            color: '#edd798',
+                            fontFamily: 'Arial',
+                            fontSize: RFValue(11),
+                            fontWeight: '900',
+                            marginLeft: 10,
+                          }}>
+                          {'GAME 2 (20)'}
+                        </Text>
+                        <Text
+                          style={{
+                            width: RFValue(150),
+                            color: '#edd798',
+                            fontFamily: 'Arial',
+                            fontSize: RFValue(11),
+                            fontWeight: '900',
+                            marginLeft: 10,
+                          }}>
+                          {'GAME 3 (15)'}
+                        </Text>
+                        <Text
+                          style={{
+                            width: RFValue(150),
+                            color: '#edd798',
+                            fontFamily: 'Arial',
+                            fontSize: RFValue(11),
+                            fontWeight: '900',
+                            marginLeft: 10,
+                          }}>
+                          {'GAME 4 (10)'}
+                        </Text>
+                        <Text
+                          style={{
+                            width: RFValue(150),
+                            color: '#edd798',
+                            fontFamily: 'Arial',
+                            fontSize: RFValue(11),
+                            fontWeight: '900',
+                            marginLeft: 10,
+                          }}>
+                          {'GAME 5 (5)'}
+                        </Text>
+                      </View>
+                      <FlatList
+                        style={{ marginTop: -0.1 }}
+                        bounces={false}
+                        data={this.state.usersGroup}
+                        renderItem={({ item, index }) => {
+                          let rest = this.state.usersGroup[index].results
+                          return (
+                            <View
+                              onPress={() => {}}
+                              style={{
+                                flexDirection: 'row',
+                                height: 60,
+                                alignItems: 'center',
+                                backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
+                              }}>
+                              <View
+                                style={{
+                                  backgroundColor: 'rgba(0,0,0,.0)',
+                                  width: 10,
+                                  height: 40,
+                                  shadowColor: '#000',
+                                  shadowOffset: {
+                                    width: 1,
+                                    height: 1,
+                                  },
+                                  shadowOpacity: 0.58,
+                                  shadowRadius: 16.0,
+
+                                  elevation: 24,
+                                }}
+                              />
+                              <TouchableOpacity
+                                onPress={() => {
+                                  this.setState(
+                                    { selected: this.getGameResult(rest, 'game 1', this.state.week) },
+                                    () => {
+                                      this._showModal()
+                                    },
+                                  )
+                                }}>
+                                <Text
+                                  style={{
+                                    width: RFValue(150),
+                                    color: this.isGameWin(item.results, 'game 1', this.state.week),
+                                    fontFamily: 'Arial',
+                                    fontSize: RFValue(9),
+                                    fontWeight: '400',
+                                    marginLeft: 10,
+                                  }}>
+                                  {this.game(item.results, 'game 1', this.state.week)}
+                                </Text>
+                              </TouchableOpacity>
+
+                              <TouchableOpacity
+                                onPress={() => {
+                                  this.setState(
+                                    { selected: this.getGameResult(rest, 'game 2', this.state.week) },
+                                    () => {
+                                      this._showModal()
+                                    },
+                                  )
+                                }}>
+                                <Text
+                                  style={{
+                                    width: RFValue(150),
+                                    color: this.isGameWin(item.results, 'game 2', this.state.week),
+                                    fontFamily: 'Arial',
+                                    fontSize: RFValue(9),
+                                    fontWeight: '400',
+                                    marginLeft: 10,
+                                  }}>
+                                  {this.game(item.results, 'game 2', this.state.week)}
+                                </Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                onPress={() => {
+                                  this.setState(
+                                    { selected: this.getGameResult(rest, 'game 3', this.state.week) },
+                                    () => {
+                                      this._showModal()
+                                    },
+                                  )
+                                }}>
+                                <Text
+                                  style={{
+                                    width: RFValue(150),
+                                    color: this.isGameWin(item.results, 'game 3', this.state.week),
+                                    fontFamily: 'Arial',
+                                    fontSize: RFValue(9),
+                                    fontWeight: '400',
+                                    marginLeft: 10,
+                                  }}>
+                                  {this.game(item.results, 'game 3', this.state.week)}
+                                </Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                onPress={() => {
+                                  this.setState(
+                                    { selected: this.getGameResult(rest, 'game 4', this.state.week) },
+                                    () => {
+                                      this._showModal()
+                                    },
+                                  )
+                                }}>
+                                <Text
+                                  style={{
+                                    width: RFValue(150),
+                                    color: this.isGameWin(item.results, 'game 4', this.state.week),
+                                    fontFamily: 'Arial',
+                                    fontSize: RFValue(9),
+                                    fontWeight: '400',
+                                    marginLeft: 10,
+                                  }}>
+                                  {this.game(item.results, 'game 4', this.state.week)}
+                                </Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                onPress={() => {
+                                  this.setState(
+                                    { selected: this.getGameResult(rest, 'game 5', this.state.week) },
+                                    () => {
+                                      this._showModal()
+                                    },
+                                  )
+                                }}>
+                                <Text
+                                  style={{
+                                    width: RFValue(150),
+                                    color: this.isGameWin(item.results, 'game 5', this.state.week),
+                                    fontFamily: 'Arial',
+                                    fontSize: RFValue(9),
+                                    fontWeight: '400',
+                                    marginLeft: 10,
+                                  }}>
+                                  {this.game(item.results, 'game 5', this.state.week)}
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                          )
+                        }}
+                        keyExtractor={item => JSON.stringify(item)}
+                      />
+                    </View>
+                  </View>
+                </Animated.ScrollView>
+              </View>
+            ) : this.state.week === 15 ? (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  borderBottomColor: noir,
+                  borderBottomWidth: 1,
+                }}>
+                {/* players */}
+                <Animated.ScrollView
+                  // pointerEvents="none"
+                  showsHorizontalScrollIndicator={false}
+                  showsVerticalScrollIndicator={false}
+                  style={[styles.fill, { transform: [{ translateY: headerTranslate }] }]}
+                  bounces={false}
+                  contentInset={{
+                    top: 0,
+                  }}
+                  contentOffset={{
+                    y: 0,
+                  }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginTop: 0.4,
+                      alignItems: 'center',
+                      height: 60,
+                    }}>
+                    <Text
+                      style={{
+                        width: 0,
+                        height: 50,
+                        color: '#edd798',
+                        fontFamily: 'Arial',
+                        fontSize: RFValue(14),
+                        fontWeight: '400',
+                        marginLeft: 10,
+                      }}></Text>
+                    <Text
+                      style={{
+                        width: RFValue(150),
+                        color: '#edd798',
+                        fontFamily: 'Arial',
+                        fontSize: RFValue(11),
+                        fontWeight: '500',
+                        marginLeft: 0,
+                      }}>
+                      PLAYERS
+                    </Text>
+                  </View>
+                  {/* this.state.usersGroup */}
+                  {this.state.usersGroup.map((item, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => {
+                        this.props.getHerParlays(item.user._id, this.props.token)
+                        this.props.setHerInfoUser(item.user)
+                        this.props.navigation.navigate('ProfileStatistics')
+                      }}
+                      style={{
+                        //borderRightColor: "rgba(255,255,255,0.05)",
+                        //borderRightWidth: 4,
+                        alignItems: 'center',
+                        backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: 60,
+                      }}>
+                      {Platform.OS === 'ios' && (
+                        <View
+                          style={{
+                            width: RFValue(125),
+                            position: 'absolute',
+                            top: 0,
+                            left: -10,
+                            backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
+
+                            shadowColor: '#000',
+                            shadowOffset: {
+                              width: 5,
+                              height: 8,
+                            },
+                            shadowOpacity: 0.29,
+                            shadowRadius: 4.65,
+                            height: 60,
+                            elevation: 7,
+                          }}
+                        />
+                      )}
+                      <Text
+                        style={{
+                          width: RFValue(150),
+                          color: jaune,
+                          fontFamily: 'Arial',
+                          fontSize: RFValue(10),
+                          fontWeight: '400',
+                          marginLeft: RFValue(40),
+                          paddingVertical: 5,
+                        }}>
+                        {/* {`Game ${index + 1} (${25 - index * 5})`} */}
+                        {item.user.username.toUpperCase()}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </Animated.ScrollView>
+
+                <Animated.ScrollView
+                  horizontal
+                  bounces={false}
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.fill}
+                  scrollEventThrottle={1}
+                  onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: this.state.scrollY } } }], {
+                    useNativeDriver: true,
+                  })}
+                  // iOS offset for RefreshControl
+                  contentInset={{
+                    top: 0,
+                  }}
+                  contentOffset={{
+                    y: 0,
+                  }}>
+                  <View>
+                    <Modal
+                      animationType="slide"
+                      transparent={true}
+                      visible={this.state.visible}
+                      onRequestClose={() => {
+                        this._hideModal()
+                      }}>
+                      <View
+                        style={{
+                          alignSelf: 'center',
+                          marginTop: 50,
+                          height: this.state.selected && this.state.selected.game ? 550 : 100,
+                          width: 300,
+                          backgroundColor: '#fff',
+                        }}>
+                        <TouchableOpacity
+                          onPress={this._hideModal}
+                          style={{ padding: 10, position: 'absolute', top: 10, right: 10, zIndex: 999 }}>
+                          <Text style={{ color: 'red' }}>Close</Text>
+                        </TouchableOpacity>
+                        {this.state.selected && !this.state.selected.game && (
+                          <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+                            <Text style={{ fontSize: 20 }}>{'No Game Found'}</Text>
+                          </View>
+                        )}
+                        {this.state.selected && this.state.selected.game && (
+                          <View style={{ padding: 20, marginTop: 30 }}>
+                            <View
+                              style={{
+                                borderWidth: 1,
+                                borderColor: '#eee',
+                                padding: 10,
+                                marginBottom: 10,
+                              }}>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Game '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.Game}</Text>
+                              </View>
+
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Spread '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.Spread}</Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Over/Under '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.ou}</Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Away Team '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.AwayTeam}</Text>
+                              </View>
+
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Home Team '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.HomeTeam}</Text>
+                              </View>
+
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Fave '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.game.Fave}
+                                </Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Dog '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.game.Dog}
+                                </Text>
+                              </View>
+                            </View>
+                            <View
+                              style={{
+                                borderWidth: 1,
+                                borderColor: '#eee',
+                                padding: 10,
+                              }}>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Bet on '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.betMethod.value.toUpperCase()}
+                                </Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Fav. Score '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.game.FavoriteScore}
+                                </Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Dog Score '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.game.UnderdogScore}
+                                </Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'O/U result '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.game.ou_score}
+                                </Text>
+                              </View>
+
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Score diff. '}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.game.FavoriteScore - this.state.selected.game.UnderdogScore}
+                                </Text>
+                              </View>
+
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Win'}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.win ? 'Yes' : 'No'}
+                                </Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Points'}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.selected.points}
+                                </Text>
+                              </View>
+                            </View>
+                            <Text
+                              style={{
+                                fontSize: 10,
+                                marginTop: 10,
+                                color: 'orange',
+                              }}>{`NB: Favorite or Dog team is based on the spread.\nif spread is negative (<0) Home team is favorite else Away team is favorite\n\nSource: https://sportsdata.io`}</Text>
+                          </View>
+                        )}
+                      </View>
+                    </Modal>
+
+                    <View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          height: 60,
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            width: RFValue(60),
+                            color: '#edd798',
+                            fontFamily: 'Arial',
+                            fontSize: RFValue(12),
+                            fontWeight: '900',
+                            marginLeft: 20,
+                          }}>
+                          {'Points'}
+                        </Text>
+                        {this.state.bowlList.map((m, i) => {
+                          return (
+                            <Text
+                              style={{
+                                width: 165,
+                                color: '#edd798',
+                                fontFamily: 'Arial',
+                                fontSize: RFValue(12),
+                                fontWeight: '900',
+                                marginRight: 4,
+                                // backgroundColor: '#fff',
+                                textAlign: 'center',
+                              }}>
+                              {`${m.substring(0, 20)}`}
+                            </Text>
+                          )
+                        })}
+                      </View>
+
+                      {this.state.usersGroup.map((item, index) => {
+                        let rest = this.state.usersGroup[index].results
+
+                        return (
+                          <View
+                            onPress={() => {}}
+                            style={{
+                              height: 60,
+                              alignItems: 'center',
+                              flexDirection: 'row',
+                              backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
+                            }}>
+                            <View
+                              style={{
+                                backgroundColor: 'rgba(0,0,0,.0)',
+                                width: 10,
+                                height: 40,
+                                shadowColor: '#000',
+                                shadowOffset: {
+                                  width: 1,
+                                  height: 1,
+                                },
+                                shadowOpacity: 0.58,
+                                shadowRadius: 16.0,
+
+                                elevation: 24,
+                              }}
+                            />
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.setState({ selected: this.getGameResult(rest, 'game 1', this.state.week) }, () => {
+                                  this._showModal()
+                                })
+                              }}>
+                              <Text
+                                style={{
+                                  width: RFValue(60),
+                                  color: '#fff',
+                                  fontFamily: 'Arial',
+                                  fontSize: RFValue(12),
+                                  fontWeight: '600',
+                                  marginLeft: 12,
+                                }}>
+                                {item.total}
+                              </Text>
+                            </TouchableOpacity>
+
+                            {this.state.bowlList.map((m, i) => {
+                              // console.log(m)
+                              return (
+                                <TouchableOpacity
+                                  onPress={() => {
+                                    this.setState({ selected: this.getGameResultBowl(rest, m, BOWLWEEK) }, () => {
+                                      this._showModal()
+                                    })
+                                  }}
+                                  style={{ marginRight: 4 }}>
+                                  <Text
+                                    style={{
+                                      width: 150,
+                                      color: this.isGameWinBowl(item.results, m, BOWLWEEK),
+                                      fontFamily: 'Arial',
+                                      fontSize: RFValue(12),
+                                      fontWeight: '600',
+                                      marginLeft: 15,
+
+                                      textAlign: 'center',
+                                    }}>
+                                    {this.gameBowl(item.results, m, BOWLWEEK)}
+                                  </Text>
+                                </TouchableOpacity>
+                              )
+                            })}
+                          </View>
+                        )
+                      })}
+                    </View>
+                  </View>
+                </Animated.ScrollView>
+              </View>
+            ) : this.state.week < 14 ? (
               <View
                 style={{
                   flexDirection: 'row',
@@ -829,1580 +1669,7 @@ class PickSheet extends Component {
                   </View>
                 </Animated.ScrollView>
               </View>
-            ) : this.props.seasonStatus === 'CHAMPIONSHIP' ? (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  borderBottomColor: noir,
-                  borderBottomWidth: 1,
-                }}>
-                {/* players */}
-                <Animated.ScrollView
-                  // pointerEvents="none"
-                  showsHorizontalScrollIndicator={false}
-                  showsVerticalScrollIndicator={false}
-                  style={[styles.fill, { transform: [{ translateY: headerTranslate }] }]}
-                  bounces={false}
-                  contentInset={{
-                    top: 0,
-                  }}
-                  contentOffset={{
-                    y: 0,
-                  }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      marginTop: 0.4,
-                      alignItems: 'center',
-                      height: 60,
-                    }}>
-                    <Text
-                      style={{
-                        width: 0,
-                        height: 50,
-                        color: '#edd798',
-                        fontFamily: 'Arial',
-                        fontSize: RFValue(14),
-                        fontWeight: '400',
-                        marginLeft: 10,
-                      }}></Text>
-                    <Text
-                      style={{
-                        width: RFValue(150),
-                        color: '#edd798',
-                        fontFamily: 'Arial',
-                        fontSize: RFValue(11),
-                        fontWeight: '500',
-                        marginLeft: 0,
-                      }}>
-                      PLAYERS
-                    </Text>
-                  </View>
-                  {/* this.state.usersGroup */}
-                  {this.state.usersGroup.map((item, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => {
-                        this.props.getHerParlays(item.user._id, this.props.token)
-                        this.props.setHerInfoUser(item.user)
-                        this.props.navigation.navigate('ProfileStatistics')
-                      }}
-                      style={{
-                        //borderRightColor: "rgba(255,255,255,0.05)",
-                        //borderRightWidth: 4,
-                        alignItems: 'center',
-                        backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        height: 60,
-                      }}>
-                      {Platform.OS === 'ios' && (
-                        <View
-                          style={{
-                            width: RFValue(125),
-                            position: 'absolute',
-                            top: 0,
-                            left: -10,
-                            backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-
-                            shadowColor: '#000',
-                            shadowOffset: {
-                              width: 5,
-                              height: 8,
-                            },
-                            shadowOpacity: 0.29,
-                            shadowRadius: 4.65,
-                            height: 60,
-                            elevation: 7,
-                          }}
-                        />
-                      )}
-                      <Text
-                        style={{
-                          width: RFValue(150),
-                          color: jaune,
-                          fontFamily: 'Arial',
-                          fontSize: RFValue(10),
-                          fontWeight: '400',
-                          marginLeft: RFValue(40),
-                          paddingVertical: 5,
-                        }}>
-                        {/* {`Game ${index + 1} (${25 - index * 5})`} */}
-                        {item.user.username.toUpperCase()}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </Animated.ScrollView>
-
-                <Animated.ScrollView
-                  horizontal
-                  bounces={false}
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.fill}
-                  scrollEventThrottle={1}
-                  onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: this.state.scrollY } } }], {
-                    useNativeDriver: true,
-                  })}
-                  // iOS offset for RefreshControl
-                  contentInset={{
-                    top: 0,
-                  }}
-                  contentOffset={{
-                    y: 0,
-                  }}>
-                  <View>
-                    <Modal
-                      animationType="slide"
-                      transparent={true}
-                      visible={this.state.visible}
-                      onRequestClose={() => {
-                        this._hideModal()
-                      }}>
-                      <View
-                        style={{
-                          alignSelf: 'center',
-                          marginTop: 50,
-                          height: this.state.selected && this.state.selected.game ? 550 : 100,
-                          width: 300,
-                          backgroundColor: '#fff',
-                        }}>
-                        <TouchableOpacity
-                          onPress={this._hideModal}
-                          style={{ padding: 10, position: 'absolute', top: 10, right: 10, zIndex: 999 }}>
-                          <Text style={{ color: 'red' }}>Close</Text>
-                        </TouchableOpacity>
-                        {this.state.selected && !this.state.selected.game && (
-                          <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-                            <Text style={{ fontSize: 20 }}>{'No Game Found'}</Text>
-                          </View>
-                        )}
-                        {this.state.selected && this.state.selected.game && (
-                          <View style={{ padding: 20, marginTop: 30 }}>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                borderColor: '#eee',
-                                padding: 10,
-                                marginBottom: 10,
-                              }}>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Game '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.Game}</Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Spread '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.Spread}</Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Over/Under '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.ou}</Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Away Team '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.AwayTeam}</Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Home Team '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.HomeTeam}</Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Fave '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.Fave}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Dog '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.Dog}
-                                </Text>
-                              </View>
-                            </View>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                borderColor: '#eee',
-                                padding: 10,
-                              }}>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Bet on '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.betMethod.value.toUpperCase()}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Fav. Score '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.FavoriteScore}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Dog Score '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.UnderdogScore}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'O/U result '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.ou_score}
-                                </Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Score diff. '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.FavoriteScore - this.state.selected.game.UnderdogScore}
-                                </Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Win'}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.win ? 'Yes' : 'No'}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Points'}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.points}
-                                </Text>
-                              </View>
-                            </View>
-                            <Text
-                              style={{
-                                fontSize: 10,
-                                marginTop: 10,
-                                color: 'orange',
-                              }}>{`NB: Favorite or Dog team is based on the spread.\nif spread is negative (<0) Home team is favorite else Away team is favorite\n\nSource: https://sportsdata.io`}</Text>
-                          </View>
-                        )}
-                      </View>
-                    </Modal>
-
-                    <View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          height: 60,
-                          alignItems: 'center',
-                        }}>
-                        {/*    {this.state.usersGroup.map((item, index) => (
-                          <View>
-                          <Text
-                              style={{
-                                width: RFValue(150),
-                                color: '#edd798',
-                                fontFamily: 'Arial',
-                                fontSize: RFValue(10),
-                                fontWeight: '900',
-                                marginLeft: 20,
-                              }}>
-                              {item.user.username.toUpperCase()}
-                            </Text>
-
-                     <View
-                              onPress={() => {}}
-                              style={{
-                                height: 60,
-                                alignItems: 'center',
-                                backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-                              }}>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 1', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 1', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 1', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 2', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 2', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 2', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 3', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 3', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 3', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 4', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 4', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 4', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 5', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 5', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 5', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-                            </View> 
-                          </View>
-                        ))}
-*/}
-                        <Text
-                          style={{
-                            width: RFValue(60),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(10),
-                            fontWeight: '900',
-                            marginLeft: 20,
-                          }}>
-                          {'POINTS'}
-                        </Text>
-                        <Text
-                          style={{
-                            width: RFValue(150),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(10),
-                            fontWeight: '900',
-                            marginLeft: 20,
-                          }}>
-                          {'GAME 1 (25)'}
-                        </Text>
-                        <Text
-                          style={{
-                            width: RFValue(150),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(11),
-                            fontWeight: '900',
-                            marginLeft: 10,
-                          }}>
-                          {'GAME 2 (20)'}
-                        </Text>
-                        <Text
-                          style={{
-                            width: RFValue(150),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(11),
-                            fontWeight: '900',
-                            marginLeft: 10,
-                          }}>
-                          {'GAME 3 (15)'}
-                        </Text>
-                        <Text
-                          style={{
-                            width: RFValue(150),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(11),
-                            fontWeight: '900',
-                            marginLeft: 10,
-                          }}>
-                          {'GAME 4 (10)'}
-                        </Text>
-                        <Text
-                          style={{
-                            width: RFValue(150),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(11),
-                            fontWeight: '900',
-                            marginLeft: 10,
-                          }}>
-                          {'GAME 5 (5)'}
-                        </Text>
-                      </View>
-                      {/* <FlatList
-                        style={{ marginTop: -0.1 }}
-                        bounces={false}
-                        data={this.state.usersGroup[index]}
-                        renderItem={({ item, index }) => {
-                          let rest = this.state.usersGroup[index].results
-                          return (
-                            <View
-                              onPress={() => {}}
-                              style={{
-                                flexDirection: 'row',
-                                height: 60,
-                                alignItems: 'center',
-                                backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-                              }}>
-                              <View
-                                style={{
-                                  backgroundColor: 'rgba(0,0,0,.0)',
-                                  width: 10,
-                                  height: 40,
-                                  shadowColor: '#000',
-                                  shadowOffset: {
-                                    width: 1,
-                                    height: 1,
-                                  },
-                                  shadowOpacity: 0.58,
-                                  shadowRadius: 16.0,
-
-                                  elevation: 24,
-                                }}
-                              />
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 1', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 1', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 1', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 2', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 2', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 2', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 3', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 3', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 3', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 4', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 4', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 4', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 5', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 5', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 5', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-                            </View>
-                          )
-                        }}
-                        keyExtractor={item => JSON.stringify(item)}
-                      /> */}
-
-                      {this.state.usersGroup.map((item, index) => {
-                        let rest = this.state.usersGroup[index].results
-                        return (
-                          <View
-                            onPress={() => {}}
-                            style={{
-                              height: 60,
-                              alignItems: 'center',
-                              flexDirection: 'row',
-                              backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-                            }}>
-                            <View
-                              style={{
-                                backgroundColor: 'rgba(0,0,0,.0)',
-                                width: 10,
-                                height: 40,
-                                shadowColor: '#000',
-                                shadowOffset: {
-                                  width: 1,
-                                  height: 1,
-                                },
-                                shadowOpacity: 0.58,
-                                shadowRadius: 16.0,
-
-                                elevation: 24,
-                              }}
-                            />
-                            {/* <Text>{item.user.username.toUpperCase()}</Text> */}
-                            <TouchableOpacity
-                              onPress={() => {
-                                this.setState({ selected: this.getGameResult(rest, 'game 1', this.state.week) }, () => {
-                                  this._showModal()
-                                })
-                              }}>
-                              <Text
-                                style={{
-                                  width: RFValue(60),
-                                  color: '#fff',
-                                  fontFamily: 'Arial',
-                                  fontSize: RFValue(9),
-                                  fontWeight: '600',
-                                  marginLeft: 12,
-                                }}>
-                                {item.total}
-                              </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              onPress={() => {
-                                this.setState({ selected: this.getGameResult(rest, 'game 1', this.state.week) }, () => {
-                                  this._showModal()
-                                })
-                              }}>
-                              <Text
-                                style={{
-                                  width: RFValue(150),
-                                  color: this.isGameWin(item.results, 'game 1', this.state.week),
-                                  fontFamily: 'Arial',
-                                  fontSize: RFValue(9),
-                                  fontWeight: '400',
-                                  marginLeft: 10,
-                                }}>
-                                {this.game(item.results, 'game 1', this.state.week)}
-                              </Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                              onPress={() => {
-                                this.setState({ selected: this.getGameResult(rest, 'game 2', this.state.week) }, () => {
-                                  this._showModal()
-                                })
-                              }}>
-                              <Text
-                                style={{
-                                  width: RFValue(150),
-                                  color: this.isGameWin(item.results, 'game 2', this.state.week),
-                                  fontFamily: 'Arial',
-                                  fontSize: RFValue(9),
-                                  fontWeight: '400',
-                                  marginLeft: 10,
-                                }}>
-                                {this.game(item.results, 'game 2', this.state.week)}
-                              </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              onPress={() => {
-                                this.setState({ selected: this.getGameResult(rest, 'game 3', this.state.week) }, () => {
-                                  this._showModal()
-                                })
-                              }}>
-                              <Text
-                                style={{
-                                  width: RFValue(150),
-                                  color: this.isGameWin(item.results, 'game 3', this.state.week),
-                                  fontFamily: 'Arial',
-                                  fontSize: RFValue(9),
-                                  fontWeight: '400',
-                                  marginLeft: 10,
-                                }}>
-                                {this.game(item.results, 'game 3', this.state.week)}
-                              </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              onPress={() => {
-                                this.setState({ selected: this.getGameResult(rest, 'game 4', this.state.week) }, () => {
-                                  this._showModal()
-                                })
-                              }}>
-                              <Text
-                                style={{
-                                  width: RFValue(150),
-                                  color: this.isGameWin(item.results, 'game 4', this.state.week),
-                                  fontFamily: 'Arial',
-                                  fontSize: RFValue(9),
-                                  fontWeight: '400',
-                                  marginLeft: 10,
-                                }}>
-                                {this.game(item.results, 'game 4', this.state.week)}
-                              </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              onPress={() => {
-                                this.setState({ selected: this.getGameResult(rest, 'game 5', this.state.week) }, () => {
-                                  this._showModal()
-                                })
-                              }}>
-                              <Text
-                                style={{
-                                  width: RFValue(150),
-                                  color: this.isGameWin(item.results, 'game 5', this.state.week),
-                                  fontFamily: 'Arial',
-                                  fontSize: RFValue(9),
-                                  fontWeight: '400',
-                                  marginLeft: 10,
-                                }}>
-                                {this.game(item.results, 'game 5', this.state.week)}
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
-                        )
-                      })}
-                    </View>
-                  </View>
-                </Animated.ScrollView>
-              </View>
-            ) : this.props.seasonStatus === 'BOWLSEASON' ? (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  borderBottomColor: noir,
-                  borderBottomWidth: 1,
-                }}>
-                {/* players */}
-                <Animated.ScrollView
-                  // pointerEvents="none"
-                  showsHorizontalScrollIndicator={false}
-                  showsVerticalScrollIndicator={false}
-                  style={[styles.fill, { transform: [{ translateY: headerTranslate }] }]}
-                  bounces={false}
-                  contentInset={{
-                    top: 0,
-                  }}
-                  contentOffset={{
-                    y: 0,
-                  }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      marginTop: 0.4,
-                      alignItems: 'center',
-                      height: 60,
-                    }}>
-                    <Text
-                      style={{
-                        width: 0,
-                        height: 50,
-                        color: '#edd798',
-                        fontFamily: 'Arial',
-                        fontSize: RFValue(14),
-                        fontWeight: '400',
-                        marginLeft: 10,
-                      }}></Text>
-                    <Text
-                      style={{
-                        width: RFValue(150),
-                        color: '#edd798',
-                        fontFamily: 'Arial',
-                        fontSize: RFValue(11),
-                        fontWeight: '500',
-                        marginLeft: 0,
-                      }}>
-                      PLAYERS
-                    </Text>
-                  </View>
-                  {/* this.state.usersGroup */}
-                  {this.state.usersGroup.map((item, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => {
-                        this.props.getHerParlays(item.user._id, this.props.token)
-                        this.props.setHerInfoUser(item.user)
-                        this.props.navigation.navigate('ProfileStatistics')
-                      }}
-                      style={{
-                        //borderRightColor: "rgba(255,255,255,0.05)",
-                        //borderRightWidth: 4,
-                        alignItems: 'center',
-                        backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        height: 60,
-                      }}>
-                      {Platform.OS === 'ios' && (
-                        <View
-                          style={{
-                            width: RFValue(125),
-                            position: 'absolute',
-                            top: 0,
-                            left: -10,
-                            backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-
-                            shadowColor: '#000',
-                            shadowOffset: {
-                              width: 5,
-                              height: 8,
-                            },
-                            shadowOpacity: 0.29,
-                            shadowRadius: 4.65,
-                            height: 60,
-                            elevation: 7,
-                          }}
-                        />
-                      )}
-                      <Text
-                        style={{
-                          width: RFValue(150),
-                          color: jaune,
-                          fontFamily: 'Arial',
-                          fontSize: RFValue(10),
-                          fontWeight: '400',
-                          marginLeft: RFValue(40),
-                          paddingVertical: 5,
-                        }}>
-                        {/* {`Game ${index + 1} (${25 - index * 5})`} */}
-                        {item.user.username.toUpperCase()}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </Animated.ScrollView>
-
-                <Animated.ScrollView
-                  horizontal
-                  bounces={false}
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.fill}
-                  scrollEventThrottle={1}
-                  onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: this.state.scrollY } } }], {
-                    useNativeDriver: true,
-                  })}
-                  // iOS offset for RefreshControl
-                  contentInset={{
-                    top: 0,
-                  }}
-                  contentOffset={{
-                    y: 0,
-                  }}>
-                  <View>
-                    <Modal
-                      animationType="slide"
-                      transparent={true}
-                      visible={this.state.visible}
-                      onRequestClose={() => {
-                        this._hideModal()
-                      }}>
-                      <View
-                        style={{
-                          alignSelf: 'center',
-                          marginTop: 50,
-                          height: this.state.selected && this.state.selected.game ? 550 : 100,
-                          width: 300,
-                          backgroundColor: '#fff',
-                        }}>
-                        <TouchableOpacity
-                          onPress={this._hideModal}
-                          style={{ padding: 10, position: 'absolute', top: 10, right: 10, zIndex: 999 }}>
-                          <Text style={{ color: 'red' }}>Close</Text>
-                        </TouchableOpacity>
-                        {this.state.selected && !this.state.selected.game && (
-                          <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-                            <Text style={{ fontSize: 20 }}>{'No Game Found'}</Text>
-                          </View>
-                        )}
-                        {this.state.selected && this.state.selected.game && (
-                          <View style={{ padding: 20, marginTop: 30 }}>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                borderColor: '#eee',
-                                padding: 10,
-                                marginBottom: 10,
-                              }}>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Game '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.Game}</Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Spread '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.Spread}</Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Over/Under '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.ou}</Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Away Team '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.AwayTeam}</Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Home Team '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.HomeTeam}</Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Fave '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.Fave}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Dog '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.Dog}
-                                </Text>
-                              </View>
-                            </View>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                borderColor: '#eee',
-                                padding: 10,
-                              }}>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Bet on '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.betMethod.value.toUpperCase()}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Fav. Score '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.FavoriteScore}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Dog Score '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.UnderdogScore}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'O/U result '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.ou_score}
-                                </Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Score diff. '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.FavoriteScore - this.state.selected.game.UnderdogScore}
-                                </Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Win'}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.win ? 'Yes' : 'No'}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Points'}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.points}
-                                </Text>
-                              </View>
-                            </View>
-                            <Text
-                              style={{
-                                fontSize: 10,
-                                marginTop: 10,
-                                color: 'orange',
-                              }}>{`NB: Favorite or Dog team is based on the spread.\nif spread is negative (<0) Home team is favorite else Away team is favorite\n\nSource: https://sportsdata.io`}</Text>
-                          </View>
-                        )}
-                      </View>
-                    </Modal>
-
-                    <View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          height: 60,
-                          alignItems: 'center',
-                        }}>
-                        <Text
-                          style={{
-                            width: RFValue(60),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(12),
-                            fontWeight: '900',
-                            marginLeft: 20,
-                          }}>
-                          {'Points'}
-                        </Text>
-                        {this.state.bowlList.map((m, i) => {
-                          return (
-                            <Text
-                              style={{
-                                width: 165,
-                                color: '#edd798',
-                                fontFamily: 'Arial',
-                                fontSize: RFValue(12),
-                                fontWeight: '900',
-                                marginRight: 4,
-                                // backgroundColor: '#fff',
-                                textAlign: 'center',
-                              }}>
-                              {`${m.substring(0, 20)}`}
-                            </Text>
-                          )
-                        })}
-                      </View>
-
-                      {this.state.usersGroup.map((item, index) => {
-                        let rest = this.state.usersGroup[index].results
-                        return (
-                          <View
-                            onPress={() => {}}
-                            style={{
-                              height: 60,
-                              alignItems: 'center',
-                              flexDirection: 'row',
-                              backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-                            }}>
-                            <View
-                              style={{
-                                backgroundColor: 'rgba(0,0,0,.0)',
-                                width: 10,
-                                height: 40,
-                                shadowColor: '#000',
-                                shadowOffset: {
-                                  width: 1,
-                                  height: 1,
-                                },
-                                shadowOpacity: 0.58,
-                                shadowRadius: 16.0,
-
-                                elevation: 24,
-                              }}
-                            />
-                            <TouchableOpacity
-                              onPress={() => {
-                                this.setState({ selected: this.getGameResult(rest, 'game 1', this.state.week) }, () => {
-                                  this._showModal()
-                                })
-                              }}>
-                              <Text
-                                style={{
-                                  width: RFValue(60),
-                                  color: '#fff',
-                                  fontFamily: 'Arial',
-                                  fontSize: RFValue(12),
-                                  fontWeight: '600',
-                                  marginLeft: 12,
-                                }}>
-                                {item.total}
-                              </Text>
-                            </TouchableOpacity>
-
-                            {this.state.bowlList.map((m, i) => {
-                              return (
-                                <TouchableOpacity
-                                  onPress={() => {
-                                    this.setState({ selected: this.getGameResultBowl(rest, m, BOWLWEEK) }, () => {
-                                      this._showModal()
-                                    })
-                                  }}
-                                  style={{ marginRight: 4 }}>
-                                  <Text
-                                    style={{
-                                      width: 150,
-                                      color: this.isGameWinBowl(item.results, m, BOWLWEEK),
-                                      fontFamily: 'Arial',
-                                      fontSize: RFValue(12),
-                                      fontWeight: '600',
-                                      marginLeft: 15,
-
-                                      textAlign: 'center',
-                                    }}>
-                                    {this.gameBowl(item.results, m, BOWLWEEK)}
-                                  </Text>
-                                </TouchableOpacity>
-                              )
-                            })}
-                          </View>
-                        )
-                      })}
-                    </View>
-                  </View>
-                </Animated.ScrollView>
-              </View>
-            ) : (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  borderBottomColor: noir,
-                  borderBottomWidth: 1,
-                }}>
-                <Animated.ScrollView
-                  // pointerEvents="none"
-                  showsHorizontalScrollIndicator={false}
-                  showsVerticalScrollIndicator={false}
-                  style={[styles.fill, { transform: [{ translateY: headerTranslate }] }]}
-                  bounces={false}
-                  contentInset={{
-                    top: 0,
-                  }}
-                  contentOffset={{
-                    y: 0,
-                  }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      marginTop: 0.4,
-                      alignItems: 'center',
-                      height: 60,
-                    }}>
-                    <Text
-                      style={{
-                        width: 0,
-                        height: 50,
-                        color: '#edd798',
-                        fontFamily: 'Arial',
-                        fontSize: RFValue(14),
-                        fontWeight: '400',
-                        marginLeft: 10,
-                      }}></Text>
-                    <Text
-                      style={{
-                        width: RFValue(150),
-                        color: '#edd798',
-                        fontFamily: 'Arial',
-                        fontSize: RFValue(11),
-                        fontWeight: '500',
-                        marginLeft: 0,
-                      }}>
-                      PLAYERS
-                    </Text>
-                  </View>
-                  {this.state.usersGroup.map((item, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => {
-                        this.props.getHerParlays(item.user._id, this.props.token)
-                        this.props.setHerInfoUser(item.user)
-                        this.props.navigation.navigate('ProfileStatistics')
-                      }}
-                      style={{
-                        //borderRightColor: "rgba(255,255,255,0.05)",
-                        //borderRightWidth: 4,
-                        alignItems: 'center',
-                        backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        height: 60,
-                      }}>
-                      {Platform.OS === 'ios' && (
-                        <View
-                          style={{
-                            width: RFValue(125),
-                            position: 'absolute',
-                            top: 0,
-                            left: -10,
-                            backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-
-                            shadowColor: '#000',
-                            shadowOffset: {
-                              width: 5,
-                              height: 8,
-                            },
-                            shadowOpacity: 0.29,
-                            shadowRadius: 4.65,
-                            height: 60,
-                            elevation: 7,
-                          }}
-                        />
-                      )}
-                      <Text
-                        style={{
-                          width: RFValue(150),
-                          color: jaune,
-                          fontFamily: 'Arial',
-                          fontSize: RFValue(10),
-                          fontWeight: '400',
-                          marginLeft: RFValue(40),
-                          paddingVertical: 5,
-                        }}>
-                        #{item.user.username.toUpperCase()}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </Animated.ScrollView>
-                <Animated.ScrollView
-                  horizontal
-                  bounces={false}
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.fill}
-                  scrollEventThrottle={1}
-                  onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: this.state.scrollY } } }], {
-                    useNativeDriver: true,
-                  })}
-                  // iOS offset for RefreshControl
-                  contentInset={{
-                    top: 0,
-                  }}
-                  contentOffset={{
-                    y: 0,
-                  }}>
-                  <View>
-                    <Modal
-                      animationType="slide"
-                      transparent={true}
-                      visible={this.state.visible}
-                      onRequestClose={() => {
-                        this._hideModal()
-                      }}>
-                      <View
-                        style={{
-                          alignSelf: 'center',
-                          marginTop: 50,
-                          height: this.state.selected && this.state.selected.game ? 550 : 100,
-                          width: 300,
-                          backgroundColor: '#fff',
-                        }}>
-                        <TouchableOpacity
-                          onPress={this._hideModal}
-                          style={{ padding: 10, position: 'absolute', top: 10, right: 10, zIndex: 999 }}>
-                          <Text style={{ color: 'red' }}>Close</Text>
-                        </TouchableOpacity>
-                        {this.state.selected && !this.state.selected.game && (
-                          <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-                            <Text style={{ fontSize: 20 }}>{'No Game Found'}</Text>
-                          </View>
-                        )}
-                        {this.state.selected && this.state.selected.game && (
-                          <View style={{ padding: 20, marginTop: 30 }}>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                borderColor: '#eee',
-                                padding: 10,
-                                marginBottom: 10,
-                              }}>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Game '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.Game}</Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Spread '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.Spread}</Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Over/Under '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.ou}</Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Away Team '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.AwayTeam}</Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Home Team '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12 }}>: {this.state.selected.game.HomeTeam}</Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Fave '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.Fave}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Dog '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.Dog}
-                                </Text>
-                              </View>
-                            </View>
-                            <View
-                              style={{
-                                borderWidth: 1,
-                                borderColor: '#eee',
-                                padding: 10,
-                              }}>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Bet on '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.betMethod.value.toUpperCase()}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Fav. Score '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.FavoriteScore}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Dog Score '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.UnderdogScore}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'O/U result '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.ou_score}
-                                </Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Score diff. '}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.game.FavoriteScore - this.state.selected.game.UnderdogScore}
-                                </Text>
-                              </View>
-
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Win'}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.win ? 'Yes' : 'No'}
-                                </Text>
-                              </View>
-                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                <Text style={{ flex: 2, fontSize: 12 }}>{'Points'}</Text>
-                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.points}
-                                </Text>
-                              </View>
-                            </View>
-                            <Text
-                              style={{
-                                fontSize: 10,
-                                marginTop: 10,
-                                color: 'orange',
-                              }}>{`NB: Favorite or Dog team is based on the spread.\nif spread is negative (<0) Home team is favorite else Away team is favorite\n\nSource: https://sportsdata.io`}</Text>
-                          </View>
-                        )}
-                      </View>
-                    </Modal>
-                    <View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          height: 60,
-                          alignItems: 'center',
-                        }}>
-                        <Text
-                          style={{
-                            width: RFValue(150),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(10),
-                            fontWeight: '900',
-                            marginLeft: 20,
-                          }}>
-                          {'GAME 1 (25)'}
-                        </Text>
-                        <Text
-                          style={{
-                            width: RFValue(150),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(11),
-                            fontWeight: '900',
-                            marginLeft: 10,
-                          }}>
-                          {'GAME 2 (20)'}
-                        </Text>
-                        <Text
-                          style={{
-                            width: RFValue(150),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(11),
-                            fontWeight: '900',
-                            marginLeft: 10,
-                          }}>
-                          {'GAME 3 (15)'}
-                        </Text>
-                        <Text
-                          style={{
-                            width: RFValue(150),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(11),
-                            fontWeight: '900',
-                            marginLeft: 10,
-                          }}>
-                          {'GAME 4 (10)'}
-                        </Text>
-                        <Text
-                          style={{
-                            width: RFValue(150),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(11),
-                            fontWeight: '900',
-                            marginLeft: 10,
-                          }}>
-                          {'GAME 5 (5)'}
-                        </Text>
-                      </View>
-                      <FlatList
-                        style={{ marginTop: -0.1 }}
-                        bounces={false}
-                        data={this.state.usersGroup}
-                        renderItem={({ item, index }) => {
-                          let rest = this.state.usersGroup[index].results
-                          return (
-                            <View
-                              onPress={() => {}}
-                              style={{
-                                flexDirection: 'row',
-                                height: 60,
-                                alignItems: 'center',
-                                backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-                              }}>
-                              <View
-                                style={{
-                                  backgroundColor: 'rgba(0,0,0,.0)',
-                                  width: 10,
-                                  height: 40,
-                                  shadowColor: '#000',
-                                  shadowOffset: {
-                                    width: 1,
-                                    height: 1,
-                                  },
-                                  shadowOpacity: 0.58,
-                                  shadowRadius: 16.0,
-
-                                  elevation: 24,
-                                }}
-                              />
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 1', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 1', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 1', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 2', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 2', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 2', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 3', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 3', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 3', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 4', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 4', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 4', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  this.setState(
-                                    { selected: this.getGameResult(rest, 'game 5', this.state.week) },
-                                    () => {
-                                      this._showModal()
-                                    },
-                                  )
-                                }}>
-                                <Text
-                                  style={{
-                                    width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 5', this.state.week),
-                                    fontFamily: 'Arial',
-                                    fontSize: RFValue(9),
-                                    fontWeight: '400',
-                                    marginLeft: 10,
-                                  }}>
-                                  {this.game(item.results, 'game 5', this.state.week)}
-                                </Text>
-                              </TouchableOpacity>
-                            </View>
-                          )
-                        }}
-                        keyExtractor={item => JSON.stringify(item)}
-                      />
-                    </View>
-                  </View>
-                </Animated.ScrollView>
-              </View>
-            )}
+            ) : null}
           </View>
         )}
 
@@ -2609,7 +1876,9 @@ class MyPicks extends Component {
                 paddingRight: 10,
                 height: RFValue(50),
               }}>
-              <Text style={{ color: jaune, fontSize: RFValue(12), fontWeight: '400' }}>{'Week ' + week}</Text>
+              <Text style={{ color: jaune, fontSize: RFValue(12), fontWeight: '400' }}>
+                {week < 14 ? 'Week ' + week : week === 14 ? 'Championship' : week === 15 ? 'Bowl season' : ''}
+              </Text>
               <Ionicons name={'ios-arrow-down'} color={jaune} size={RFValue(20)} style={{ marginLeft: 10 }} />
             </View>
           </TouchableOpacity>

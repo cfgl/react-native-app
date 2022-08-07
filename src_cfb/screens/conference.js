@@ -73,7 +73,7 @@ class PickSheet extends Component {
               : ''}
           </Text>
         </View>
-        {this.props.seasonStatus === 'STARTED' && (
+        {this.props.seasonStatus !== 'PREPARING' && (
           <View
             style={{
               flexDirection: 'row',

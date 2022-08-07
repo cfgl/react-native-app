@@ -2,11 +2,9 @@ import React, { Component } from 'react'
 import { Text, View, Linking } from 'react-native'
 import { jaune } from '../styles/colors'
 import { connect } from 'react-redux'
-import { Switch } from 'react-native-paper'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import { setCurrentWeek, getCurrentWeekGame, getMyGroupBets } from '../redux/actions/game'
-import { RFPercentage, RFValue } from 'react-native-responsive-fontsize'
+import { setCurrentWeek, getCurrentWeekGame } from '../redux/actions/game'
+import { RFValue } from 'react-native-responsive-fontsize'
 
 import { TouchableOpacity } from 'react-native-gesture-handler'
 

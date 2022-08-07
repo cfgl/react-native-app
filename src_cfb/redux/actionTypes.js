@@ -53,7 +53,7 @@ export const PROCCESS_START = 'PROCCESS_START'
 export const PROCCESS_SUCCESSED = 'PROCCESS_SUCCESSED'
 export const PROCCESS_FAILLED = 'PROCCESS_FAILLED'
 
-// export const SERVER = 'http://192.168.100.156:1337' //'http://192.168.1.15:1337'
+// export const SERVER =  'http://192.168.1.15:1337' //'http://192.168.100.156:1337'
 export const SERVER = 'https://cfgl-backend-test.herokuapp.com'
 // export const SERVER = SERVER_URL
 export const KEYAPI = SPORTDATA_API_TOKEN_CFB

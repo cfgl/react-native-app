@@ -56,8 +56,7 @@ class Pick extends Component {
       off: false,
       isSwitchOn:
         this.props.myParlay &&
-        this.props.myParlay.filter(i => i.week === this.props.currentWeek && i.season === this.props.currentYear)
-          .length === 1
+        this.props.myParlay.filter(i => i.week === CHAMIONSHIPWEEK && i.season === this.props.currentYear).length === 1
           ? true
           : false,
       checked: false,
@@ -103,10 +102,8 @@ class Pick extends Component {
     if (day === 3 || day === 4 || day === 5 || day === 6) {
       this.timeInterval = setInterval(() => {
         this.gamesAndBets()
-      }, 2 * 60 * 1000)
+      }, 5 * 60 * 1000)
     }
-
-    //this.props.setCurrentSeasonWeek()
 
     const respGetPlayers = await getAllPlayers(null, this.props.currentYear + '', this.props.token)
     if (respGetPlayers && respGetPlayers.data) {
@@ -121,8 +118,8 @@ class Pick extends Component {
 
   gamesAndBets = async () => {
     this.props.setCurrentSeasonWeek()
-    this.props.getCurrentWeekGame(this.props.currentYear, this.props.currentWeek)
-    const respGetWeekGames = await getWeekGames(this.props.currentYear, this.props.currentWeek)
+    this.props.getCurrentWeekGame(this.props.currentYear + '', CHAMIONSHIPWEEK)
+    const respGetWeekGames = await getWeekGames(this.props.currentYear + '', CHAMIONSHIPWEEK)
     if (respGetWeekGames && respGetWeekGames.data) {
       let datas = respGetWeekGames.data.map(m => {
         m.AwayTeamInfo = getTeamById(m.AwayTeamID)
@@ -137,7 +134,7 @@ class Pick extends Component {
       this.setState({ weekGames: datas })
     }
 
-    const respGetMyBets = await getMyBets(this.props.user._id, this.props.currentWeek, this.props.token)
+    const respGetMyBets = await getMyBets(this.props.user._id, CHAMIONSHIPWEEK, this.props.token)
     if (respGetMyBets && respGetMyBets.data) {
       console.log('respGetMyBets', respGetMyBets.data.length)
 
@@ -151,8 +148,7 @@ class Pick extends Component {
       this.setState({
         allMyParlays: respMyParlays.data,
         isSwitchOn:
-          respMyParlays.data.filter(i => i.week === this.props.currentWeek && i.season === this.props.currentYear)
-            .length === 1
+          respMyParlays.data.filter(i => i.week === CHAMIONSHIPWEEK && i.season === this.props.currentYear).length === 1
             ? true
             : false,
       })
@@ -163,7 +159,7 @@ class Pick extends Component {
     if (
       prevProps.statusGame !== this.props.statusGame &&
       this.props.statusGame === 'SUCCESS_BET_CREATE' &&
-      this.props.currentWeek !== CHAMIONSHIPWEEK
+      CHAMIONSHIPWEEK !== CHAMIONSHIPWEEK
     ) {
       let action = this.props.statusGame
 
@@ -218,7 +214,7 @@ class Pick extends Component {
     } else if (
       prevProps.statusGame !== this.props.statusGame &&
       this.props.statusGame === 'SUCCESS_BET_UPDATE' &&
-      this.props.currentWeek !== CHAMIONSHIPWEEK
+      CHAMIONSHIPWEEK !== CHAMIONSHIPWEEK
     ) {
       this.gamesAndBets()
     }
@@ -271,7 +267,9 @@ class Pick extends Component {
         style={{
           flex: 1,
         }}
-        refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />}>
+        refreshControl={
+          <RefreshControl tintColor={'#fff'} refreshing={this.state.refreshing} onRefresh={this.onRefresh} />
+        }>
         <StatusBar backgroundColor={gris} barStyle="light-content" />
         <View
           style={{
@@ -321,7 +319,7 @@ class Pick extends Component {
             paddingTop: 20,
           }}>
           {this.state.types.map((item, index) => {
-            const takeBet = this.hasTakeBet(this.state.bets, this.props.currentWeek, this.props.currentYear, item.value)
+            const takeBet = this.hasTakeBet(this.state.bets, CHAMIONSHIPWEEK, this.props.currentYear, item.value)
 
             CONF_ALREADY = CONF_ALREADY.concat(
               '-' + takeBet.method && takeBet.method.conference && !CONF_ALREADY.includes(takeBet.method.conference)
@@ -353,9 +351,8 @@ class Pick extends Component {
               const parlay =
                 item.value.includes('game') &&
                 this.state.allMyParlays &&
-                this.state.allMyParlays.filter(
-                  i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
-                ).length === 1
+                this.state.allMyParlays.filter(i => i.week === CHAMIONSHIPWEEK && i.season === this.props.currentYear)
+                  .length === 1
               // console.log('on MyGames ' + index)
               return (
                 <View key={index}>
@@ -420,7 +417,7 @@ class Pick extends Component {
                         onValueChange={async () => {
                           this.setState({ isSwitchOn: !this.state.isSwitchOn }, async () => {
                             let ply = this.state.allMyParlays.filter(
-                              i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
+                              i => i.week === CHAMIONSHIPWEEK && i.season === this.props.currentYear,
                             )
                             if (this.state.allMyParlays && ply.length === 1) {
                               const respDeleteParlay = await deleteParlay(ply[0]._id, this.props.token)
@@ -431,10 +428,10 @@ class Pick extends Component {
                             } else {
                               const respSaveParlay = await saveParlay(
                                 {
-                                  week: this.props.currentWeek,
+                                  week: CHAMIONSHIPWEEK,
                                   season: this.props.currentYear,
                                   user: this.props.user._id,
-                                  uniqueId: `${this.props.user._id}-${this.props.currentWeek}`,
+                                  uniqueId: `${this.props.user._id}-${CHAMIONSHIPWEEK}`,
                                 },
                                 this.props.token,
                               )
@@ -450,7 +447,7 @@ class Pick extends Component {
                         onPress={() => {
                           this.setState({ isSwitchOn: !this.state.isSwitchOn }, async () => {
                             let ply = this.state.allMyParlays.filter(
-                              i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
+                              i => i.week === CHAMIONSHIPWEEK && i.season === this.props.currentYear,
                             )
                             if (this.state.allMyParlays && ply.length === 1) {
                               const respDeleteParlay = await deleteParlay(ply[0]._id, this.props.token)
@@ -461,10 +458,10 @@ class Pick extends Component {
                             } else {
                               const respSaveParlay = await saveParlay(
                                 {
-                                  week: this.props.currentWeek,
+                                  week: CHAMIONSHIPWEEK,
                                   season: this.props.currentYear,
                                   user: this.props.user._id,
-                                  uniqueId: `${this.props.user._id}-${this.props.currentWeek}`,
+                                  uniqueId: `${this.props.user._id}-${CHAMIONSHIPWEEK}`,
                                 },
                                 this.props.token,
                               )
@@ -518,7 +515,7 @@ class Pick extends Component {
                     favorites={
                       this.props.user && this.props.user.favoritesCFB
                         ? this.props.user.favoritesCFB.filter(
-                            i => i.Week === this.props.currentWeek && this.props.currentYear.includes(i.Season + ''),
+                            i => i.Week === CHAMIONSHIPWEEK && this.props.currentYear.includes(i.Season + ''),
                           )
                         : []
                     }
@@ -534,7 +531,7 @@ class Pick extends Component {
                     selectedConf={CONF_ALREADY}
                     onChoose={async data => {
                       data.type = item
-                      data.week = `${this.props.currentWeek}`
+                      data.week = `${CHAMIONSHIPWEEK}`
                       data.season = `${this.props.currentYear}`
                       data.quickpick = data.quick
                       data.user = this.props.user._id
@@ -547,12 +544,7 @@ class Pick extends Component {
                       this.setState({ newBet: data })
 
                       if (data.game.GameID && data.method.value) {
-                        let be = this.hasTakeBet(
-                          this.state.bets,
-                          this.props.currentWeek,
-                          this.props.currentYear,
-                          item.value,
-                        )
+                        let be = this.hasTakeBet(this.state.bets, CHAMIONSHIPWEEK, this.props.currentYear, item.value)
 
                         if (be.game && be.game.HomeTeam && be.game.AwayTeam) {
                           this.setState({ sending: true })
@@ -569,9 +561,10 @@ class Pick extends Component {
                           //console.log(JSON.stringify(data,null,2));
                           this.setState({ sending: false })
                           this.props.saveBet(data, this.props.token)
-                          // setTimeout(() => {
-                          //   this.gamesAndBets()
-                          // }, 3000)
+
+                          setTimeout(() => {
+                            this.gamesAndBets()
+                          }, 3000)
                         }
                       }
                     }}
@@ -593,7 +586,7 @@ class Pick extends Component {
                           if (!this.state.off) {
                             this.setState({ isSwitchOn: !this.state.isSwitchOn }, async () => {
                               let ply = this.state.allMyParlays.filter(
-                                i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
+                                i => i.week === CHAMIONSHIPWEEK && i.season === this.props.currentYear,
                               )
                               if (this.state.allMyParlays && ply.length === 1) {
                                 const respDeleteParlay = await deleteParlay(ply[0]._id, this.props.token)
@@ -604,10 +597,10 @@ class Pick extends Component {
                               } else {
                                 const respSaveParlay = await saveParlay(
                                   {
-                                    week: this.props.currentWeek,
+                                    week: CHAMIONSHIPWEEK,
                                     season: this.props.currentYear,
                                     user: this.props.user._id,
-                                    uniqueId: `${this.props.user._id}-${this.props.currentWeek}`,
+                                    uniqueId: `${this.props.user._id}-${CHAMIONSHIPWEEK}`,
                                   },
                                   this.props.token,
                                 )
@@ -625,7 +618,7 @@ class Pick extends Component {
                           if (!this.state.off) {
                             this.setState({ isSwitchOn: !this.state.isSwitchOn }, async () => {
                               let ply = this.state.allMyParlays.filter(
-                                i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
+                                i => i.week === CHAMIONSHIPWEEK && i.season === this.props.currentYear,
                               )
                               if (this.state.allMyParlays && ply.length === 1) {
                                 const respDeleteParlay = await deleteParlay(ply[0]._id, this.props.token)
@@ -636,10 +629,10 @@ class Pick extends Component {
                               } else {
                                 const respSaveParlay = await saveParlay(
                                   {
-                                    week: this.props.currentWeek,
+                                    week: CHAMIONSHIPWEEK,
                                     season: this.props.currentYear,
                                     user: this.props.user._id,
-                                    uniqueId: `${this.props.user._id}-${this.props.currentWeek}`,
+                                    uniqueId: `${this.props.user._id}-${CHAMIONSHIPWEEK}`,
                                   },
                                   this.props.token,
                                 )

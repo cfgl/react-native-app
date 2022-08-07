@@ -145,7 +145,7 @@ class Pick extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (
       prevProps.statusGame !== this.props.statusGame &&
-      this.props.statusGame === 'SUCCESS_BET_CREATE_' &&
+      this.props.statusGame === 'SUCCESS_BET_CREATE' &&
       this.props.currentWeek !== CHAMIONSHIPWEEK
     ) {
       let action = this.props.statusGame
@@ -162,38 +162,42 @@ class Pick extends Component {
       this.props.setGameStatus('')
       this.gamesAndBets()
       // alert(JSON.stringify(pushIds))
-      axios
-        .post(
-          `https://onesignal.com/api/v1/notifications`,
-          {
-            app_id: ONSIGNAL_KEY,
-            //subtitle: { "en": `${this.props.user.username} last bet:` },
-            contents: {
-              en: `${gameString(this.state.newBet.game)} | ${this.state.newBet.type.value} | ${
-                this.state.newBet.method.label
-              }`,
+      if (this.state.newBet && this.state.newBet.type && this.state.newBet.game && this.state.newBet.type.value) {
+        axios
+          .post(
+            `https://onesignal.com/api/v1/notifications`,
+            {
+              app_id: ONSIGNAL_KEY,
+              //subtitle: { "en": `${this.props.user.username} last bet:` },
+              contents: {
+                en: `${gameString(this.state.newBet.game)} | ${this.state.newBet.type.value} | ${
+                  this.state.newBet.method.label
+                }`,
+              },
+              headings: {
+                en: `${this.props.user.username} ${
+                  action === 'SUCCESS_BET_CREATE' ? ' made a pick' : ' update a pick'
+                }`,
+              },
+              include_player_ids: pushIds,
             },
-            headings: {
-              en: `${this.props.user.username} ${action === 'SUCCESS_BET_CREATE' ? ' made a pick' : ' update a pick'}`,
+            {
+              headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+                Authorization: 'Basic ' + ONSIGNAL_REST_API_KEY,
+              },
             },
-            include_player_ids: pushIds,
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              Authorization: 'Basic ' + ONSIGNAL_REST_API_KEY,
-            },
-          },
-        )
-        .then(function (response) {
-          // handle success
-          console.log('Response:')
-          // console.log(JSON.stringify(response));
-        })
-        .catch(function (error) {
-          // handle error
-          console.log(JSON.stringify(error))
-        })
+          )
+          .then(function (response) {
+            // handle success
+            console.log('Response:')
+            // console.log(JSON.stringify(response));
+          })
+          .catch(function (error) {
+            // handle error
+            console.log(JSON.stringify(error))
+          })
+      }
     } else if (
       prevProps.statusGame !== this.props.statusGame &&
       this.props.statusGame === 'SUCCESS_BET_UPDATE' &&
@@ -247,13 +251,7 @@ class Pick extends Component {
   render() {
     // if (this.props.currentWeek !== CHAMIONSHIPWEEK && this.props.seasonStatus !== 'BOWLSEASON') {
     return (
-      <ScrollView
-        style={{
-          flex: 1,
-        }}
-        refreshControl={
-          <RefreshControl tintColor={'#fff'} refreshing={this.state.refreshing} onRefresh={this.onRefresh} />
-        }>
+      <View style={{ flex: 1 }}>
         <StatusBar backgroundColor={gris} barStyle="light-content" />
         {this.state.sending && <Text style={{ color: '#fff', alignSelf: 'center', marginTop: 10 }}>Sending...</Text>}
         {this.props.seasonStatus === 'PREPARING' && (
@@ -701,7 +699,7 @@ class Pick extends Component {
             </Text>
           </View>
         )}
-      </ScrollView>
+      </View>
     )
   }
 }

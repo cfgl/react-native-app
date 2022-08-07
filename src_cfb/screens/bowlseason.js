@@ -14,7 +14,6 @@ import ActionSheet from 'react-native-actionsheet'
 import { setCurrentSeasonWeek, setWeekDate, getCurrentWeekGame } from '../redux/actions/game'
 import GameItem from '../components/gameItem'
 import { Searchbar } from 'react-native-paper'
-import { getWeekGames, getMyBets, updateBet } from '../services/games'
 
 const methods = [
   { type: 'spread', label: 'Spread fave', value: 'fave', category: 'bowl' },
@@ -22,11 +21,8 @@ const methods = [
   { type: 'total', label: 'Total over', value: 'over', category: 'bowl' },
   { type: 'total', label: 'Total under', value: 'under', category: 'bowl' },
   { type: 'moneyLine', label: 'MoneyLine $line', value: '$line' },
-
   { type: '', label: '', value: 'Cancel', category: '' },
 ]
-
-let datas = []
 
 class BowlSeason extends Component {
   constructor(props) {
@@ -35,14 +31,17 @@ class BowlSeason extends Component {
       id: -1,
       data: [],
       bowlGame: [],
+      betsGame: [],
+      selectedGame: null,
       selected: -1,
       refreshing: false,
       visible: false,
-      firstQuery: '',
+      searchText: '',
       selected: -1,
       weekGames: [],
     }
   }
+
   months = index => {
     switch (index) {
       case 0:
@@ -74,10 +73,11 @@ class BowlSeason extends Component {
         return ''
     }
   }
+
   async componentDidMount() {
     const self = this
     axios
-      .get(`https://cfgl-prod.herokuapp.com/bowl-games`, {
+      .get(`${SERVER}/bowl-games`, {
         headers: {
           Authorization: `Bearer ${this.props.token}`,
         },
@@ -117,14 +117,13 @@ class BowlSeason extends Component {
       .then(function (response) {
         // handle success
 
-        if (response && response.data.filter(f => f.method.category === 'bowl').length > 0) {
-          console.log(response.data)
-
-          self.setState({
-            bowlGame: response.data
-              .filter(f => f.method.category === 'bowl')
-              .filter(f => f.Season.toString() === this.props.currentYear.toString()),
-          })
+        if (response && response.data) {
+          self.setState(
+            {
+              betsGame: response.data.filter(f => f.method.category === 'bowl'),
+            },
+            () => {},
+          )
           console.log('Data has been load')
         } else {
           self.setState({ bowlGame: [] })
@@ -136,6 +135,7 @@ class BowlSeason extends Component {
         console.log(JSON.stringify(error))
       })
   }
+
   onRefresh = () => {
     this.setState({ refreshing: true })
     this.getAll()
@@ -168,8 +168,6 @@ class BowlSeason extends Component {
     data.gameKey = data.game && data.game.GameID ? data.game.GameID.toString() : ''
 
     if (data.game.GameID && data.method.value) {
-      console.log(JSON.stringify(data, null, 2))
-
       if (data._id) {
         axios
           .put(`${SERVER}/betscfbs/${data._id}`, data, {
@@ -178,9 +176,10 @@ class BowlSeason extends Component {
             },
           })
           .then(response => {
-            // console.log(JSON.stringify(response.data.game, null, 2))
-            self.getAll()
-            console.log('has been Update')
+            if (response && response.data && response.data._id) {
+              self.getAll()
+              console.log('has been Update')
+            }
           })
           .catch(error => {
             // Handle error.
@@ -194,9 +193,10 @@ class BowlSeason extends Component {
             },
           })
           .then(response => {
-            // console.log(JSON.stringify(response.data, null, 2))
-            self.getAll()
-            console.log('has been create')
+            if (response && response.data && response.data._id) {
+              self.getAll()
+              console.log('has been create')
+            }
           })
           .catch(error => {
             // Handle error.
@@ -204,31 +204,11 @@ class BowlSeason extends Component {
           })
       }
     }
-    // if (data.game.GameID && data.method.value) {
-    //   data.method.conference = data.conference
-    //   // console.log(JSON.stringify(data.gameKey, null, 2));
-    //   let be = this.hasTakeBet(
-    //     this.props.bets,
-    //     this.props.currentWeek,
-    //     this.props.currentYear,
-    //     item.value,
-    //   )
-    //   if (be.game && be.game.HomeTeam && be.game.AwayTeam) {
-    //     // console.log("===================================");
-    //     //console.log(JSON.stringify(data, null, 2));
-    //     // console.log("===================================");
-    //     console.log('Update')
-    //     this.props.updateBet(be._id, data, this.props.user._id, this.props.token)
-    //   } else {
-    //     console.log('create')
-    //     //console.log(JSON.stringify(data,null,2));
-    //     this.props.saveBet(data, this.props.token)
-    //   }
-    // }
   }
 
   deletePick = id => {
     let self = this
+
     axios
       .delete(`${SERVER}/betscfbs/${id}`, {
         headers: {
@@ -236,26 +216,24 @@ class BowlSeason extends Component {
         },
       })
       .then(response => {
-        // console.log(JSON.stringify(response.data, null, 2))
-        self.getAll()
-        alert('Pick has been remove')
-        console.log('has been delete')
+        if (response && response.data && response.data._id) {
+          // alert('Pick has been remove')
+          self.getAll()
+
+          console.log('has been delete')
+        }
       })
       .catch(error => {
-        self.getAll()
-
         // Handle error.
         console.log('An error occurred:', error)
       })
   }
   render() {
-    const rankList = Array.from(new Array(38), (x, i) => `${i + 1}`).concat(['Cancel'])
-
     if (this.props.weekGames.length > 0 && this.state.data.length === 0) {
       this.setState({ data: this.props.weekGames })
     }
 
-    const { visible, firstQuery } = this.state
+    const { visible, searchText } = this.state
     return (
       <View style={{ flex: 1, width: '100%', marginTop: 0 }}>
         <View
@@ -276,7 +254,7 @@ class BowlSeason extends Component {
               fontWeight: '700',
               lineHeight: 24,
             }}>
-            {`Picks made:  ${this.state.bowlGame.length} of ${this.state.weekGames.length}`}
+            {`Picks made:  ${this.state.betsGame.length} of ${this.state.weekGames.length}`}
           </Text>
         </View>
 
@@ -339,20 +317,34 @@ class BowlSeason extends Component {
             }}>
             {`Remember, your “${this.state.weekGames.length}” game is worth ${this.state.weekGames.length} points and your “1” game is worth 1 point. Your “15” game is worth 15 points, and so on and so forth. Simply drag the game to the position you want them.`}
           </Text>
-          {/* <Text>{JSON.stringify(this.props.weekGames) + 'ooooooo'}</Text> */}
+
           {this.state.weekGames.map((item, index) => {
-            let game = this.state.bowlGame.filter(f => f.type && f.type.point === index + 1)
+            let game = {}
+            const dat = this.state.betsGame.filter(f => f.type && f.type.point === index + 1)[0]
+            const dat2 = this.state.bowlGame[index]
+
+            game = dat ? dat : {}
+            if (dat2 && dat2.game) {
+              game.game = dat2.game
+            }
+            if (dat2 && dat2.method) {
+              game.method = dat2.method
+            }
+            if (dat2 && dat2.type) {
+              game.type = dat2.type
+            }
+
             return (
               <Game
                 item={item}
                 index={index}
-                selectedBowl={game[0] || this.state.bowlGame[index] || {}}
+                selectedBowl={game || {}}
                 getGame={() => {
-                  this.setState({ selected: index }, () => {
+                  this.setState({ selected: index, selectedGame: game }, () => {
                     this._showModal()
                   })
                 }}
-                onClear={() => {
+                onClear={id => {
                   Alert.alert('Clear Game', 'Do you realy want clear this pick?', [
                     {
                       text: 'No',
@@ -362,17 +354,15 @@ class BowlSeason extends Component {
                     {
                       text: 'Yes',
                       onPress: () => {
-                        if (game && game[0] && game[0]._id) {
-                          this.deletePick(game[0]._id)
-                        } else {
-                          console.log(game)
+                        if (id) {
+                          this.deletePick(id)
                         }
                       },
                     },
                   ])
                 }}
                 method={() => {
-                  this.setState({ selected: index }, () => {
+                  this.setState({ selected: index, selectedGame: game }, () => {
                     this.showTypeBet()
                   })
                 }}
@@ -388,9 +378,7 @@ class BowlSeason extends Component {
           cancelButtonIndex={methods.map(i => i.value).length - 1}
           onPress={index => {
             if (index !== methods.map(i => i.value).length - 1) {
-              let self = this
-
-              let bowlgame = this.state.bowlGame[this.state.selected] || {}
+              let bowlgame = this.state.selectedGame || {}
 
               bowlgame.method = methods[index]
               this.state.bowlGame[this.state.selected] = bowlgame
@@ -403,54 +391,7 @@ class BowlSeason extends Component {
                   this.state.bowlGame[this.state.selected].method &&
                   this.state.bowlGame[this.state.selected].method.value
                 ) {
-                  console.log(this.state.bowlGame)
                   this.onChoose(this.state.bowlGame[this.state.selected], this.state.selected + 1)
-                  // if (this.state.id !== -1) {
-                  //   axios
-                  //     .put(
-                  //       `${SERVER}/bowl-game-users/${this.state.id}`,
-                  //       {
-                  //         games: this.state.bowlGame,
-                  //       },
-                  //       {
-                  //         headers: {
-                  //           Authorization: `Bearer ${this.props.token}`,
-                  //         },
-                  //       },
-                  //     )
-                  //     .then(response => {
-                  //       console.log('has been Update')
-                  //     })
-                  //     .catch(error => {
-                  //       // Handle error.
-                  //       console.log('An error occurred:', error)
-                  //     })
-                  // } else {
-                  //   axios
-                  //     .post(
-                  //       `${SERVER}/bowl-game-users`,
-                  //       {
-                  //         season: this.props.currentYear,
-                  //         user: this.props.user.id,
-                  //         games: this.state.bowlGame,
-                  //       },
-                  //       {
-                  //         headers: {
-                  //           Authorization: `Bearer ${this.props.token}`,
-                  //         },
-                  //       },
-                  //     )
-                  //     .then(response => {
-                  //       if (response && response.data._id) {
-                  //         self.setState({ bowlGame: response.data.games, id: response.data._id })
-                  //       }
-                  //       console.log('has been created')
-                  //     })
-                  //     .catch(error => {
-                  //       // Handle error.
-                  //       console.log('An error occurred:', error)
-                  //     })
-                  // }
                 }
               })
             }
@@ -509,17 +450,16 @@ class BowlSeason extends Component {
                 borderBottomColor: jaune,
                 borderBottomWidth: 2,
               }}
+              autoCapitalize={'none'}
               onChangeText={query => {
-                this.setState({ firstQuery: query })
+                this.setState({ searchText: query })
               }}
-              value={firstQuery}
+              value={searchText}
             />
             <ScrollView style={{ paddingTop: 20 }}>
-              {/* favorites games */}
-
-              {/* Games list */}
               {this.state.weekGames
-                .filter(f => this.state.bowlGame.filter(j => j && j.game && j.game.GameID === f.GameID).length === 0)
+                .filter(f => JSON.stringify(f).toLowerCase().includes(this.state.searchText.toLowerCase()))
+                .filter(f => this.state.betsGame.filter(j => j && j.game && j.game.GameID === f.GameID).length === 0)
                 .filter(f => f.PointSpread !== null && f.OverUnder !== null)
                 .map((item, index) => (
                   <GameItem
@@ -528,15 +468,11 @@ class BowlSeason extends Component {
                     stared={false}
                     game={item}
                     index={index}
-                    onSelected={id => {
-                      let bowlGame = this.state.bowlGame[this.state.selected] || {}
-
+                    onSelected={() => {
+                      let bowlGame = this.state.selectedGame || {}
                       bowlGame.game = item
                       this.state.bowlGame[this.state.selected] = bowlGame
-
-                      // alert(JSON.stringify(this.state.bowlGame))
                       this.setState({ bowlGame: this.state.bowlGame }, () => {
-                        // alert(JSON.stringify(this.state.bowlGame))
                         if (
                           this.state.bowlGame[this.state.selected] &&
                           this.state.bowlGame[this.state.selected].game &&
@@ -545,55 +481,9 @@ class BowlSeason extends Component {
                           this.state.bowlGame[this.state.selected].method.value
                         ) {
                           this.onChoose(this.state.bowlGame[this.state.selected], this.state.selected + 1)
-                          // if (this.state.bowlGame.length > 0) {
-                          //   axios
-                          //     .put(
-                          //       `${SERVER}/bowl-game-users/${this.state.id}`,
-                          //       {
-                          //         games: this.state.bowlGame,
-                          //       },
-                          //       {
-                          //         headers: {
-                          //           Authorization: `Bearer ${this.props.token}`,
-                          //         },
-                          //       },
-                          //     )
-                          //     .then(response => {
-                          //       console.log('has been Update')
-                          //     })
-                          //     .catch(error => {
-                          //       // Handle error.
-                          //       console.log('An error occurred:', error)
-                          //     })
-                          // } else {
-                          //   axios
-                          //     .post(
-                          //       `${SERVER}/bowl-game-users`,
-                          //       {
-                          //         season: this.props.currentYear,
-                          //         user: this.props.user.id,
-                          //         games: this.state.bowlGame,
-                          //       },
-                          //       {
-                          //         headers: {
-                          //           Authorization: `Bearer ${this.props.token}`,
-                          //         },
-                          //       },
-                          //     )
-                          //     .then(response => {
-                          //       console.log('has been created')
-                          //     })
-                          //     .catch(error => {
-                          //       // Handle error.
-                          //       console.log('An error occurred:', error)
-                          //     })
-                          // }
                         }
-
                         this._hideModal()
                       })
-
-                      // alert(JSON.stringify(this.state.bowlGame, null, 2))
                     }}
                   />
                 ))}
@@ -608,7 +498,7 @@ class BowlSeason extends Component {
 
 function Game(props) {
   const { selectedBowl } = props
-
+  let id = selectedBowl && selectedBowl._id ? selectedBowl._id : null
   let game_ = selectedBowl && selectedBowl.game ? selectedBowl.game : null
   let method_ = selectedBowl && selectedBowl.method ? selectedBowl.method : null
 
@@ -622,6 +512,8 @@ function Game(props) {
         paddingHorizontal: 20,
         marginBottom: 20,
         alignSelf: 'center',
+        borderLeftColor: id ? jaune : noir,
+        borderLeftWidth: 2,
       }}>
       <View
         style={{
@@ -639,10 +531,10 @@ function Game(props) {
           }}>
           {'Game ' + (props.index + 1)}
         </Text>
-        {game_ && !game_._id && (
+        {id && (
           <TouchableOpacity
             onPress={() => {
-              props.onClear()
+              props.onClear(id)
             }}>
             <Text
               style={{

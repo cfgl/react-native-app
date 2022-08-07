@@ -100,11 +100,8 @@ class feeds extends Component {
     this.props.setWeekDate()
     this.props.getConferences(this.props.token)
     this.props.getGroups(this.props.token)
-    // if (this.props.user && !this.props.user._id) {
-    //   this.props.logoutUser()
-    // } else {
+
     this.execution()
-    // }
   }
 
   componentDidMount() {
@@ -128,47 +125,47 @@ class feeds extends Component {
     }
   }
 
-  preExecution = () => {
-    let finalRange = _.orderBy(this.state.players, ['total'], ['desc'])
-    let myRangeData = _.filter(finalRange, o => {
-      return o.user._id === this.props.user._id
-    })
-    let myRangeIndex = _.findIndex(finalRange, o => {
-      return o.user._id === this.props.user._id
-    })
-    if (myRangeData && myRangeData.length > 0) {
-      let myRangeWin = _.filter(myRangeData[0].results, o => {
-        return o.win === true
-      })
-      // this.props.setUserRank(myRangeIndex + 1)
+  // preExecution = () => {
+  //   let finalRange = _.orderBy(this.state.players, ['total'], ['desc'])
+  //   let myRangeData = _.filter(finalRange, o => {
+  //     return o.user._id === this.props.user._id
+  //   })
+  //   let myRangeIndex = _.findIndex(finalRange, o => {
+  //     return o.user._id === this.props.user._id
+  //   })
+  //   if (myRangeData && myRangeData.length > 0) {
+  //     let myRangeWin = _.filter(myRangeData[0].results, o => {
+  //       return o.win === true
+  //     })
+  //     // this.props.setUserRank(myRangeIndex + 1)
 
-      this.popularPick('08:00:00', '12:59:00')
-      this.popularPick('13:00:00', '18:59:00')
-      this.popularPick('19:00:00', '23:59:00')
-      this.setState({
-        popular: {
-          morning: this.popularGames('08:00:00', '12:59:00'),
-          afternoon: this.popularGames('12:59:59', '18:59:00'),
-          night: this.popularGames('18:59:59', '23:59:00'),
-        },
-        popularPick: {
-          morning: this.popularPick('08:00:00', '12:59:00'),
-          afternoon: this.popularPick('12:59:59', '18:59:00'),
-          night: this.popularPick('18:59:59', '23:59:00'),
-        },
-      })
-    }
-    //reset status
-    this.props.setGameStatus('')
-    ///set player
-    if (this.props.seasonStatus === 'FINISHED') {
-      this.topPlayerFunc('all')
-    } else if (this.props.seasonStatus === 'STARTED') this.topPlayerFunc('week')
-    ///set group
-    if (this.props.seasonStatus === 'FINISHED') {
-      this.topGroupFunc('all')
-    } else if (this.props.seasonStatus === 'STARTED') this.topGroupFunc('week')
-  }
+  //     this.popularPick('08:00:00', '12:59:00')
+  //     this.popularPick('13:00:00', '18:59:00')
+  //     this.popularPick('19:00:00', '23:59:00')
+  //     this.setState({
+  //       popular: {
+  //         morning: this.popularGames('08:00:00', '12:59:00'),
+  //         afternoon: this.popularGames('12:59:59', '18:59:00'),
+  //         night: this.popularGames('18:59:59', '23:59:00'),
+  //       },
+  //       popularPick: {
+  //         morning: this.popularPick('08:00:00', '12:59:00'),
+  //         afternoon: this.popularPick('12:59:59', '18:59:00'),
+  //         night: this.popularPick('18:59:59', '23:59:00'),
+  //       },
+  //     })
+  //   }
+  //   //reset status
+  //   this.props.setGameStatus('')
+  //   ///set player
+  //   if (this.props.seasonStatus === 'FINISHED') {
+  //     this.topPlayerFunc('all')
+  //   } else if (this.props.seasonStatus === 'STARTED') this.topPlayerFunc('week')
+  //   ///set group
+  //   if (this.props.seasonStatus === 'FINISHED') {
+  //     this.topGroupFunc('all')
+  //   } else if (this.props.seasonStatus === 'STARTED') this.topGroupFunc('week')
+  // }
 
   execution = async () => {
     this.props.setCurrentSeasonWeek()
@@ -229,19 +226,13 @@ class feeds extends Component {
     if (respGetAllPlayersByWeek && respGetAllPlayersByWeek.data) {
       this.setState({ playersByWeek: respGetAllPlayersByWeek.data }, () => {
         if (this.state.players && this.state.players.length > 0) {
-          ///set player
-          if (this.props.seasonStatus === 'FINISHED') {
-            this.topPlayerFunc('all')
-          } else if (this.props.seasonStatus === 'STARTED') this.topPlayerFunc('week')
-          ///set group
-          if (this.props.seasonStatus === 'FINISHED') {
-            this.topGroupFunc('all')
-          } else if (this.props.seasonStatus === 'STARTED') this.topGroupFunc('week')
+          this.topPlayerFunc('all')
+          this.topPlayerFunc('week')
+          this.topGroupFunc('all')
+          this.topGroupFunc('week')
         }
       })
     }
-
-    // this.preExecution()
   }
 
   setNotificationToken = async () => {
