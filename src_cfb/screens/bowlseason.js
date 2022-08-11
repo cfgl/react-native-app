@@ -486,6 +486,8 @@ class BowlSeason extends Component {
               {this.state.weekGames
                 .filter(f => JSON.stringify(f).toLowerCase().includes(this.state.searchText.toLowerCase()))
                 .filter(f => this.state.betsGame.filter(j => j && j.game && j.game.GameID === f.GameID).length === 0)
+                .filter(f => this.state.bowlGame.filter(j => j && j.game && j.game.GameID === f.GameID).length === 0)
+
                 .filter(f => f.PointSpread !== null && f.OverUnder !== null)
                 .map((item, index) => (
                   <GameItem
