@@ -20,7 +20,7 @@ const methods = [
   { type: 'spread', label: 'Spread dog', value: 'dog', category: 'bowl' },
   { type: 'total', label: 'Total over', value: 'over', category: 'bowl' },
   { type: 'total', label: 'Total under', value: 'under', category: 'bowl' },
-  { type: 'moneyLine', label: 'MoneyLine $line', value: '$line' },
+  { type: 'moneyLine', label: 'MoneyLine $line', value: '$line', category: 'bowl' },
   { type: '', label: '', value: 'Cancel', category: '' },
 ]
 
@@ -186,6 +186,8 @@ class BowlSeason extends Component {
             console.log('An error occurred:', error)
           })
       } else {
+        // alert('create')
+
         axios
           .post(`${SERVER}/betscfbs`, data, {
             headers: {
@@ -322,6 +324,9 @@ class BowlSeason extends Component {
             let game = {}
             const dat = this.state.betsGame.filter(f => f.type && f.type.point === index + 1)[0]
             const dat2 = this.state.bowlGame[index]
+            if (dat || dat2) {
+              console.log(JSON.stringify(dat, null, 2))
+            }
 
             game = dat ? dat : {}
             if (dat2 && dat2.game) {

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { View, ScrollView, TouchableOpacity, RefreshControl, Text, StatusBar, StyleSheet } from 'react-native'
-import { Switch } from 'react-native-paper'
+import { ActivityIndicator, Switch } from 'react-native-paper'
 import { Ionicons } from 'react-native-vector-icons'
 import { MyPicks, MyGames } from '../components'
 import { connect } from 'react-redux'
@@ -75,6 +75,7 @@ class Pick extends Component {
       weekGames: [],
       players: [],
       allMyParlays: [],
+      loading: true,
     }
   }
 
@@ -139,7 +140,7 @@ class Pick extends Component {
       })
     }
 
-    this.setState({ refreshing: false })
+    this.setState({ refreshing: false, loading: false })
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -251,7 +252,7 @@ class Pick extends Component {
   render() {
     // if (this.props.currentWeek !== CHAMIONSHIPWEEK && this.props.seasonStatus !== 'BOWLSEASON') {
     return (
-      <View style={{ flex: 1 }}>
+      <ScrollView style={{ flex: 1 }}>
         <StatusBar backgroundColor={gris} barStyle="light-content" />
         {this.state.sending && <Text style={{ color: '#fff', alignSelf: 'center', marginTop: 10 }}>Sending...</Text>}
         {this.props.seasonStatus === 'PREPARING' && (
@@ -262,6 +263,19 @@ class Pick extends Component {
               paddingTop: 100,
             }}>
             <Text style={{ color: jaune, fontSize: 16 }}>SEASON {this.props.currentYear} IS NOT STARTED YET</Text>
+          </View>
+        )}
+        {(this.state.loading === true || this.state.sending === true) && this.props.seasonStatus !== 'FINISHED' && (
+          <View
+            style={{
+              flex: 1,
+              height: '100%',
+              width: '100%',
+              zIndex: 999,
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              position: 'absolute',
+            }}>
+            <ActivityIndicator style={{ marginTop: 100 }} />
           </View>
         )}
         {this.props.seasonStatus === 'STARTED' && (
@@ -282,15 +296,12 @@ class Pick extends Component {
               //   JSON.stringify(takeBet.game.Status ? 'OK-' + takeBet.game.Status : 'NOT -' + item.value, null, 2),
               // )
 
-              const gameShowed =
-                takeBet && !takeBet.saved && takeBet.game && takeBet.game.Status && takeBet.game.Status !== 'Scheduled'
+              const gameShowed = takeBet && !takeBet.saved && takeBet.game && takeBet.game.Status
+              //  && takeBet.game.Status !== 'Scheduled'
 
-              const blockParlay =
-                item.value.includes('pick') &&
-                takeBet &&
-                takeBet.game &&
-                takeBet.game.Status &&
-                takeBet.game.Status !== 'Scheduled'
+              const blockParlay = item.value.includes('pick') && takeBet && takeBet.game && takeBet.game.Status
+              // &&
+              // takeBet.game.Status !== 'Scheduled'
 
               if (this.state.off === false && blockParlay === true) {
                 this.setState({ off: true })
@@ -525,7 +536,7 @@ class Pick extends Component {
                             setTimeout(() => {
                               this.setState({ sending: false })
                               this.props.saveBet(data, this.props.token)
-                            }, 2000)
+                            }, 3000)
                           }
                         }
                       }}
@@ -699,7 +710,7 @@ class Pick extends Component {
             </Text>
           </View>
         )}
-      </View>
+      </ScrollView>
     )
   }
 }

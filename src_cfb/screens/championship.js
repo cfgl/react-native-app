@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { View, ScrollView, TouchableOpacity, RefreshControl, Text, StatusBar, StyleSheet } from 'react-native'
-import { Switch } from 'react-native-paper'
+import { ActivityIndicator, Switch } from 'react-native-paper'
+
 import { Ionicons } from 'react-native-vector-icons'
 import { MyChampionPicks, MyGames } from '../components'
 import { connect } from 'react-redux'
@@ -94,6 +95,7 @@ class Pick extends Component {
       weekGames: [],
       players: [],
       allMyParlays: [],
+      loading: true,
     }
     CONF_ALREADY = ''
   }
@@ -153,6 +155,8 @@ class Pick extends Component {
             : false,
       })
     }
+
+    this.setState({ loading: false })
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -271,6 +275,19 @@ class Pick extends Component {
           <RefreshControl tintColor={'#fff'} refreshing={this.state.refreshing} onRefresh={this.onRefresh} />
         }>
         <StatusBar backgroundColor={gris} barStyle="light-content" />
+        {(this.state.loading === true || this.state.sending === true) && (
+          <View
+            style={{
+              flex: 1,
+              height: '100%',
+              width: '100%',
+              zIndex: 999,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              position: 'absolute',
+            }}>
+            <ActivityIndicator style={{ marginTop: 100 }} />
+          </View>
+        )}
         <View
           style={{
             backgroundColor: gris,
@@ -334,12 +351,9 @@ class Pick extends Component {
             const gameShowed =
               takeBet && !takeBet.saved && takeBet.game && takeBet.game.Status && takeBet.game.Status !== 'Scheduled'
 
-            const blockParlay =
-              item.value.includes('game') &&
-              takeBet &&
-              takeBet.game &&
-              takeBet.game.Status &&
-              takeBet.game.Status !== 'Scheduled'
+            const blockParlay = item.value.includes('game') && takeBet && takeBet.game && takeBet.game.Status
+            // &&
+            // takeBet.game.Status !== 'Scheduled'
 
             // console.log(blockParlay)
 

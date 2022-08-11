@@ -49,7 +49,7 @@ class standings extends Component {
     this.group_.show()
   }
   playerInfo = async id => {
-    const respGetPlayers2 = await getAllPlayersStanding(id, this.props.token)
+    const respGetPlayers2 = await getAllPlayersStanding(this.props.currentYear + '', this.props.token)
     if (respGetPlayers2 && respGetPlayers2.data) {
       console.log('respGetPlayers2', respGetPlayers2.data.length)
       this.setState({ allPlayers: respGetPlayers2.data })

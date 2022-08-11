@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { View, Modal, Text, ScrollView, TouchableOpacity, Platform, StyleSheet } from 'react-native'
 import _ from 'lodash'
 import { Searchbar } from 'react-native-paper'
-import { SCREEN_WIDTH } from '../utils/variables'
+import { CHAMIONSHIPWEEK, SCREEN_WIDTH } from '../utils/variables'
 import { jaune, noir, gris } from '../styles/colors'
 import { Checkbox, Switch } from 'react-native-paper'
 import { Ionicons } from 'react-native-vector-icons'
@@ -147,7 +147,7 @@ class MyPicks extends Component {
     let con = conferences[ranConf]
 
     let list = a
-      .filter(f => this.props.currentYear.includes(f.Season + '') && f.Week === this.props.currentWeek)
+      .filter(f => this.props.currentYear.includes(f.Season + '') && f.Week === CHAMIONSHIPWEEK)
       .filter(
         f => f.PointSpread !== null && f.OverUnder !== null,
         // && f.Status !== "Final" //comment for testing
@@ -165,33 +165,42 @@ class MyPicks extends Component {
       )
 
     //Get one game from the list
-    let ranGame = Math.floor(Math.random() * (list.length - 1) + 0)
+    let ranGame = list.length > 1 ? Math.floor(Math.random() * (list.length - 1) + 0) : 0
 
     //Get one of the method type
     let ranMethod = Math.floor(Math.random() * (methods.length - 1) + 0)
-
-    //It's Time to place your Bet
-    if (ranGame !== -1 && ranMethod !== -1 && ranConf !== -1) {
-      this.setState(
-        {
-          game: list[ranGame],
-          method: methods[ranMethod],
-          isSwitchOn: true,
-          conferenceCFB: conferences[ranConf],
-        },
-        () => {
-          this.props.onChoose({
-            game: this.state.game,
-            method: this.state.method,
-            locked: this.state.isSwitchOn,
-            quick: this.state.checked,
-            conference: conferences[ranConf],
-          })
-        },
-      )
-    } else {
-      alert('No game found for type of pick')
-    }
+    this.setState({ method: methods[ranMethod], game: list[ranGame], conferenceCFB: conferences[ranConf] }, () => {
+      //It's Time to place your Bet
+      // console.log(list)
+      if (ranGame !== -1 && ranMethod !== -1 && ranConf !== -1) {
+        // console.log({
+        //   game: this.state.game,
+        //   method: this.state.method,
+        //   locked: this.state.isSwitchOn,
+        //   quick: this.state.checked,
+        //   conference: this.state.conferenceCFB,
+        // })
+        // this.setState(
+        //   {
+        //     game: list[ranGame],
+        //     method: methods[ranMethod],
+        //     isSwitchOn: true,
+        //     conferenceCFB: conferences[ranConf],
+        //   },
+        //   () => {
+        this.props.onChoose({
+          game: this.state.game,
+          method: this.state.method,
+          locked: this.state.isSwitchOn,
+          quick: this.state.checked,
+          conference: conferences[ranConf],
+        })
+        //   },
+        // )
+      } else {
+        alert('No game found for type of pick')
+      }
+    })
   }
 
   render() {

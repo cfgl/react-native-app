@@ -181,11 +181,10 @@ class MyPicks extends Component {
     let list = a
       .filter(f => this.props.currentYear.includes(f.Season + '') && f.Week === this.props.currentWeek)
       .filter(
-        f =>
-          f.PointSpread !== null &&
-          f.OverUnder !== null &&
-          f.Status !== 'Final' && //comment for testing
-          f.Status === 'Scheduled', //comment for testing
+        f => f.PointSpread !== null && f.OverUnder !== null,
+        //  &&
+        // f.Status !== 'Final' && //comment for testing
+        // f.Status === 'Scheduled', //comment for testing
       )
       .filter(
         f =>
@@ -505,10 +504,10 @@ class MyPicks extends Component {
               {/* favorites games */}
               {this.favoritesF(this.props.favorites)
                 .filter(
-                  i =>
-                    JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()) &&
-                    f.Status !== 'Final' && //comment for testing
-                    i.Status === 'Scheduled', //comment for testing
+                  i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()),
+                  // &&
+                  // f.Status !== 'Final' && //comment for testing
+                  // i.Status === 'Scheduled', //comment for testing
                 )
                 .filter(f => f.PointSpread !== null && f.OverUnder !== null)
                 .map((item, index) => (
@@ -524,12 +523,25 @@ class MyPicks extends Component {
                           game: data.filter(i => i.GlobalGameID == item.GlobalGameID)[0],
                         },
                         () => {
-                          onChoose({
-                            game: this.state.game,
-                            method: this.state.method,
-                            locked: this.state.isSwitchOn,
-                            quick: this.state.checked,
-                          })
+                          if (name === 'dog game') {
+                            onChoose({
+                              game: this.state.game,
+                              method: {
+                                type: 'moneyLine',
+                                label: 'MoneyLine $line',
+                                value: '$line',
+                              },
+                              locked: this.state.isSwitchOn,
+                              quick: this.state.checked,
+                            })
+                          } else {
+                            onChoose({
+                              game: this.state.game,
+                              method: this.state.method,
+                              locked: this.state.isSwitchOn,
+                              quick: this.state.checked,
+                            })
+                          }
                         },
                       )
 
@@ -542,10 +554,10 @@ class MyPicks extends Component {
               {/* Games list */}
               {this.merge(data, this.props.favorites)
                 .filter(
-                  i =>
-                    JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()) &&
-                    i.Status !== 'Final' && //comment for testing
-                    i.Status === 'Scheduled', //comment for testing
+                  i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()),
+                  //  &&
+                  // i.Status !== 'Final' && //comment for testing
+                  // i.Status === 'Scheduled', //comment for testing
                 )
                 .filter(f => f.PointSpread !== null && f.OverUnder !== null)
 
@@ -562,12 +574,25 @@ class MyPicks extends Component {
                           game: data.filter(i => i.GameID === item.GameID)[0],
                         },
                         () => {
-                          onChoose({
-                            game: this.state.game,
-                            method: this.state.method,
-                            locked: this.state.isSwitchOn,
-                            quick: this.state.checked,
-                          })
+                          if (name === 'dog game') {
+                            onChoose({
+                              game: this.state.game,
+                              method: {
+                                type: 'moneyLine',
+                                label: 'MoneyLine $line',
+                                value: '$line',
+                              },
+                              locked: this.state.isSwitchOn,
+                              quick: this.state.checked,
+                            })
+                          } else {
+                            onChoose({
+                              game: this.state.game,
+                              method: this.state.method,
+                              locked: this.state.isSwitchOn,
+                              quick: this.state.checked,
+                            })
+                          }
                         },
                       )
 

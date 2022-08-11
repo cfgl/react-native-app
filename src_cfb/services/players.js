@@ -74,10 +74,10 @@ export const getAllPlayers = (playerId, season, token) => {
   }
 }
 
-export const getAllPlayersStanding = (groupId, token) => {
+export const getAllPlayersStanding = (season, token) => {
   console.log('start getAllPlayers')
   try {
-    const query = `${SERVER}/finalresults/myRank`
+    const query = `${SERVER}/finalresults/myRank?season=${season}`
     return axios.get(query, {
       headers: {
         Authorization: `Bearer ${token}`,
