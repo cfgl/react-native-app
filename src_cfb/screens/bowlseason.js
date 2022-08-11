@@ -7,6 +7,7 @@ import { BOWLWEEK, SCREEN_WIDTH } from '../utils/variables'
 import { gameString } from '../utils/functions'
 import axios from 'axios'
 import _ from 'lodash'
+import { ActivityIndicator } from 'react-native-paper'
 
 import { connect } from 'react-redux'
 import { updateUserInfo } from '../redux/actions/user'
@@ -39,6 +40,7 @@ class BowlSeason extends Component {
       searchText: '',
       selected: -1,
       weekGames: [],
+      send: false,
     }
   }
 
@@ -92,7 +94,7 @@ class BowlSeason extends Component {
 
           self.setState({
             weekGames: _.concat(weekGames_, games.data)
-              .filter(f => f.Season + '' === self.props.currentYear + '')
+              .filter(f => f.Season + '' === self.props.currentYear + '' && f.PointSpread)
               .sort((a, b) => new Date(a.Day) - new Date(b.Day)),
           })
         })
@@ -168,6 +170,7 @@ class BowlSeason extends Component {
     data.gameKey = data.game && data.game.GameID ? data.game.GameID.toString() : ''
 
     if (data.game.GameID && data.method.value) {
+      this.setState({ send: true })
       if (data._id) {
         axios
           .put(`${SERVER}/betscfbs/${data._id}`, data, {
@@ -180,8 +183,10 @@ class BowlSeason extends Component {
               self.getAll()
               console.log('has been Update')
             }
+            this.setState({ send: false })
           })
           .catch(error => {
+            this.setState({ send: false })
             // Handle error.
             console.log('An error occurred:', error)
           })
@@ -199,8 +204,10 @@ class BowlSeason extends Component {
               self.getAll()
               console.log('has been create')
             }
+            this.setState({ send: false })
           })
           .catch(error => {
+            this.setState({ send: false })
             // Handle error.
             console.log('An error occurred:', error)
           })
@@ -238,6 +245,20 @@ class BowlSeason extends Component {
     const { visible, searchText } = this.state
     return (
       <View style={{ flex: 1, width: '100%', marginTop: 0 }}>
+        {this.state.send === true && (
+          <View
+            style={{
+              flex: 1,
+              height: '100%',
+              width: '100%',
+              zIndex: 999,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              position: 'absolute',
+            }}>
+            <ActivityIndicator style={{ marginTop: 250 }} />
+          </View>
+        )}
+
         <View
           style={{
             height: 40,
