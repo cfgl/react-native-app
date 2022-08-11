@@ -1128,6 +1128,7 @@ class feeds extends Component {
               }
               style={{ width: '70%', height: RFValue(130), resizeMode: 'contain' }}
             />
+
             <TouchableOpacity
               onPress={() => {
                 this.props.props.navigation.navigate('Conference')
@@ -1590,7 +1591,7 @@ class feeds extends Component {
                               }}>
                               {index + 1}
                             </Text>
-                            <Image
+                            {/* <Image
                               source={
                                 item.user.avatar && item.user.avatar
                                   ? { uri: item.user.avatar }
@@ -1604,7 +1605,7 @@ class feeds extends Component {
                                 borderRadius: RFValue(20),
                                 backgroundColor: jaune,
                               }}
-                            />
+                            /> */}
                             <Text
                               style={{
                                 flex: 1,

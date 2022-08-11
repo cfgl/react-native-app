@@ -99,6 +99,42 @@ class Pick extends Component {
     this.setState({ refreshing: true })
 
     this.gamesAndBets()
+
+    // this.testNotif()
+  }
+  testNotif = async () => {
+    axios
+      .post(
+        `https://onesignal.com/api/v1/notifications`,
+        {
+          app_id: ONSIGNAL_KEY,
+          subtitle: { en: ` last bet:` },
+          contents: {
+            en: `test`,
+          },
+          headings: {
+            en: `test`,
+          },
+          include_player_ids: ['95984449-8285-4647-8e66-9fc92d108a3b', '9b5539ad-7dc7-4bc9-8dd7-0c9a21c8f04e'],
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            Authorization: 'Basic ' + ONSIGNAL_REST_API_KEY,
+          },
+        },
+      )
+      .then(function (response) {
+        // handle success
+        // alert('Response:')
+        console.log(JSON.stringify(response.data))
+      })
+      .catch(function (error) {
+        alert('bad:')
+
+        // handle error
+        console.log(JSON.stringify(error))
+      })
   }
 
   gamesAndBets = async () => {

@@ -121,7 +121,7 @@ $Lines – Pick an underdog to win the game, and win the points of the spread.\n
                   fontWeight: '700',
                   marginLeft: 20,
                 }}>
-                RULES & SCORING: Each week you select six games.
+                {`RULES & SCORING:\nEach week you select six games.`}
               </Text>
             </View>
           </View>
@@ -129,7 +129,7 @@ $Lines – Pick an underdog to win the game, and win the points of the spread.\n
             <View
               style={{
                 width: '90%',
-
+                height: 38,
                 marginTop: 40,
                 backgroundColor: '#edd798',
                 justifyContent: 'center',

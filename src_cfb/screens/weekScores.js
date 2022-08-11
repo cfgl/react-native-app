@@ -88,7 +88,13 @@ class Pick extends Component {
     if (this.props.route.name !== prevProps.route.name) console.log(JSON.stringify(this.props.route, null, 2))
   }
 
-  AllQuery
+  formatTime = date => {
+    const c = new Date(date)
+    const h = c.getHours() > 9 ? c.getHours() : `0${c.getHours()}`
+    const m = c.getMinutes() > 9 ? c.getMinutes() : `0${c.getMinutes()}`
+
+    return h + ':' + m
+  }
 
   render() {
     return (
@@ -97,10 +103,16 @@ class Pick extends Component {
           flex: 1,
           paddingVertical: 20,
         }}
-        refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />}>
+        refreshControl={
+          <RefreshControl tintColor={'#fff'} refreshing={this.state.refreshing} onRefresh={this.onRefresh} />
+        }>
         <StatusBar backgroundColor={gris} barStyle="light-content" />
         <Text style={{ color: '#fff', marginHorizontal: 20, marginBottom: 10, alignSelf: 'center' }}>
-          Last update: {this.props.lastUpdate.toLocaleString()}
+          {'Last update: '}
+          {this.props.lastUpdate
+            ? new Date(this.props.lastUpdate).toLocaleDateString() + ' ' + this.formatTime(this.props.lastUpdate)
+            : new Date(this.props.lastUpdate).toLocaleString()}{' '}
+          {/* {this.props.lastUpdate.toLocaleString()} */}
         </Text>
         {this.state.games.map(game => {
           return (
@@ -129,7 +141,9 @@ class Pick extends Component {
                       flexDirection: 'row',
                     }}>
                     <Text style={{ color: jaune, fontSize: 15, fontWeight: 'bold' }}>
-                      {game.DateTime ? new Date(game.DateTime).toLocaleString() : new Date(game.Day).toLocaleString()}
+                      {game.DateTime
+                        ? new Date(game.DateTime).toLocaleDateString() + ' ' + this.formatTime(game.DateTime)
+                        : new Date(game.Day).toLocaleString()}
                     </Text>
                   </View>
                   <Text
