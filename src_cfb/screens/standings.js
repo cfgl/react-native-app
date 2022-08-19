@@ -57,6 +57,8 @@ class standings extends Component {
   }
   onRefresh = () => {
     this.setState({ refreshing: true })
+    this.playerInfo(this.props.user.group._id)
+
     // this.props.getGroupBets(this.state.group._id, this.props.token)
     // this.props.getUsersGroup(this.state.group._id, this.props.token)
     // this.props.groupParlays(this.state.group._id, this.props.token)
@@ -78,7 +80,9 @@ class standings extends Component {
         <View style={{ flex: 1 }}>
           <ScrollView
             style={{}}
-            refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />}>
+            refreshControl={
+              <RefreshControl tintColor={'#fff'} refreshing={this.state.refreshing} onRefresh={this.onRefresh} />
+            }>
             {this.state.allPlayers
               .filter(i => i.user.group === this.state.group.id || this.state.group.name === 'All')
               .sort((a, b) => b.total > a.total)

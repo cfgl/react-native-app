@@ -288,7 +288,11 @@ class Pick extends Component {
   render() {
     // if (this.props.currentWeek !== CHAMIONSHIPWEEK && this.props.seasonStatus !== 'BOWLSEASON') {
     return (
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl tintColor={'#fff'} refreshing={this.state.refreshing} onRefresh={this.onRefresh} />
+        }
+        style={{ flex: 1 }}>
         <StatusBar backgroundColor={gris} barStyle="light-content" />
         {this.state.sending && <Text style={{ color: '#fff', alignSelf: 'center', marginTop: 10 }}>Sending...</Text>}
         {this.props.seasonStatus === 'PREPARING' && (

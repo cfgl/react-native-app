@@ -200,8 +200,13 @@ class MyPicks extends Component {
     //Get one game from the list
     let ranGame = Math.floor(Math.random() * (list.length - 1) + 0)
 
-    //Get one of the method type
-    let ranMethod = Math.floor(Math.random() * (methods.length - 1) + 0)
+    let ranMethod = 0
+    if (this.props.name.toUpperCase() !== 'DOG GAME') {
+      //Get one of the method type
+      ranMethod = Math.floor(Math.random() * (methods.length - 1) + 0)
+    } else {
+      ranMethod = 4
+    }
 
     //It's Time to place your Bet
     if (ranGame !== -1 && ranMethod !== -1 && ranConf !== -1) {
@@ -221,7 +226,7 @@ class MyPicks extends Component {
         },
       )
     } else {
-      alert('No game found for type of pick')
+      alert('No game found for this pick')
     }
   }
 

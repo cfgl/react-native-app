@@ -182,6 +182,7 @@ class feeds extends Component {
         let myRangeData = _.filter(finalRange, o => {
           return o.user._id === this.props.user._id
         })
+
         let myRangeIndex = _.findIndex(finalRange, o => {
           return o.user._id === this.props.user._id
         })
@@ -190,6 +191,7 @@ class feeds extends Component {
             return o.win === true
           })
           this.props.setUserRank(myRangeIndex + 1)
+
           this.setState({
             range: {
               index: myRangeIndex + 1,
@@ -1083,76 +1085,6 @@ class feeds extends Component {
               </TouchableOpacity>
             </View>
           )}
-          <View
-            style={{
-              backgroundColor: '#191919',
-
-              width: '95%',
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingVertical: 50,
-              paddingHorizontal: 10,
-              marginVertical: 30,
-              alignSelf: 'center',
-            }}>
-            <Text
-              style={{
-                color: '#edd798',
-                fontFamily: 'Monda',
-                fontSize: RFValue(25),
-                fontWeight: '400',
-
-                textAlign: 'center',
-              }}>
-              {'You’ve been drafted.'}
-            </Text>
-
-            <Text
-              style={{
-                color: '#edd798',
-                fontFamily: 'Monda',
-                fontSize: RFValue(16),
-
-                marginTop: 10,
-                textAlign: 'center',
-              }}>
-              {`YOU ARE NOW PART OF \n${
-                this.props.user && this.props.user.group && this.props.user.group.name ? this.props.user.group.name : ''
-              }`}
-            </Text>
-            <Image
-              source={
-                this.props.user && this.props.user.group && this.props.user.group.image
-                  ? { uri: this.props.user.group.image.url }
-                  : require('../images/groupima.png')
-              }
-              style={{ width: '70%', height: RFValue(130), resizeMode: 'contain' }}
-            />
-
-            <TouchableOpacity
-              onPress={() => {
-                this.props.props.navigation.navigate('Conference')
-              }}
-              style={{
-                height: 50,
-                width: '90%',
-                backgroundColor: jaune,
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingHorizontal: 20,
-                marginTop: 10,
-              }}>
-              <Text
-                style={{
-                  color: '#191919',
-                  fontFamily: 'Monda',
-                  fontSize: RFValue(13),
-                  fontWeight: '700',
-                }}>
-                {'VIEW YOUR CFGL CONFERENCE'}
-              </Text>
-            </TouchableOpacity>
-          </View>
 
           {/* PLAYER OF THE WEEK////////////////////////////////////////////////////////////////////////////// */}
 
@@ -1639,6 +1571,52 @@ class feeds extends Component {
               })}
             </View>
           )}
+
+          <View
+            style={{
+              backgroundColor: '#191919',
+
+              width: '95%',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 50,
+              paddingHorizontal: 10,
+              marginVertical: 30,
+              alignSelf: 'center',
+            }}>
+            <Image
+              source={
+                this.props.user && this.props.user.group && this.props.user.group.image
+                  ? { uri: this.props.user.group.image.url }
+                  : require('../images/groupima.png')
+              }
+              style={{ width: '70%', height: RFValue(100), resizeMode: 'contain' }}
+            />
+
+            <TouchableOpacity
+              onPress={() => {
+                this.props.props.navigation.navigate('Conference')
+              }}
+              style={{
+                height: 50,
+                width: '90%',
+                backgroundColor: jaune,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingHorizontal: 20,
+                marginTop: 10,
+              }}>
+              <Text
+                style={{
+                  color: '#191919',
+                  fontFamily: 'Monda',
+                  fontSize: RFValue(13),
+                  fontWeight: '700',
+                }}>
+                {'VIEW YOUR CFGL CONFERENCE'}
+              </Text>
+            </TouchableOpacity>
+          </View>
           <View style={{ marginBottom: 30 }}></View>
           <ActionSheet
             ref={o => (this.selectedConference = o)}

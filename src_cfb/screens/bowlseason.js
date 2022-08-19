@@ -215,7 +215,7 @@ class BowlSeason extends Component {
     }
   }
 
-  deletePick = id => {
+  deletePick = (id, gameId) => {
     let self = this
 
     axios
@@ -228,7 +228,8 @@ class BowlSeason extends Component {
         if (response && response.data && response.data._id) {
           // alert('Pick has been remove')
           self.getAll()
-
+          let new_ = self.state.bowlGame.filter(f => f.game.GameID !== gameId)
+          self.setState({ bowlGame: new_ })
           console.log('has been delete')
         }
       })
@@ -370,7 +371,7 @@ class BowlSeason extends Component {
                     this._showModal()
                   })
                 }}
-                onClear={id => {
+                onClear={(id, gameId) => {
                   Alert.alert('Clear Game', 'Do you realy want clear this pick?', [
                     {
                       text: 'No',
@@ -381,7 +382,7 @@ class BowlSeason extends Component {
                       text: 'Yes',
                       onPress: () => {
                         if (id) {
-                          this.deletePick(id)
+                          this.deletePick(id, gameId)
                         }
                       },
                     },
@@ -562,7 +563,7 @@ function Game(props) {
         {id && (
           <TouchableOpacity
             onPress={() => {
-              props.onClear(id)
+              props.onClear(id, game_.GameID)
             }}>
             <Text
               style={{

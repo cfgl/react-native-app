@@ -12,6 +12,7 @@ import {
   RefreshControl,
   Modal,
 } from 'react-native'
+import _ from 'lodash'
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize'
 import axios from 'axios'
 import { CHAMIONSHIPWEEK, BOWLWEEK } from '../utils/variables'
@@ -139,15 +140,25 @@ class PickSheet extends Component {
     }
     return 0
   }
+
   isGameWin = (bets, type, week) => {
-    let bet = bets.filter(i => i.week == week && i.betType.value === type)
+    let res = bets.results
+    let bet = res.filter(i => i.week == week && i.betType.value === type)
     if (bet.length > 0) {
       if (bet[0].game.GameFull.Status === 'Final' || bet[0].game.GameFull.Status === 'F/OT') {
-        if (bet[0].win == true && bet[0].game.rats !== 'PUSH') {
+        if (
+          bet[0].win == true &&
+          bet[0].game.rats !== 'PUSH' &&
+          (this.winParley(bets, week, bet[0].betType) === -1 || this.winParley(bets, week, bet[0].betType) === 1)
+        ) {
           return 'green'
-        } else if (bet[0].win == true && bet[0].game.rats === 'PUSH') {
+        } else if (
+          bet[0].win == true &&
+          bet[0].game.rats === 'PUSH' &&
+          (this.winParley(bets, week, bet[0].betType) === -1 || this.winParley(bets, week, bet[0].betType) === 1)
+        ) {
           return 'orange'
-        } else if (bet[0].win == false) {
+        } else if (bet[0].win == false || this.winParley(bets, week, bet[0].betType) === 0) {
           return 'red'
         }
       } else {
@@ -157,6 +168,30 @@ class PickSheet extends Component {
       return '#fff'
     }
   }
+
+  winParley = (bet, week, betType) => {
+    let r = -1
+    const v = bet && bet.parlays ? bet.parlays.filter(f => f.week + '' === week + '') : []
+    const w = bet && bet.resultsParlay ? bet.resultsParlay.filter(f => f.week + '' === week + '') : []
+
+    if (
+      v.length > 0 &&
+      betType &&
+      betType.value &&
+      (betType.value.includes('pick') ||
+        betType.value.includes('game 1') ||
+        betType.value.includes('game 2') ||
+        betType.value.includes('game 3') ||
+        betType.value.includes('game 4') ||
+        betType.value.includes('game 5'))
+    ) {
+      r = w[0].point > 0 ? 1 : 0
+      console.log(w[0].point)
+    }
+
+    return r
+  }
+
   isGameWinBowl = (bets, title, week) => {
     let bet = bets.filter(i => i.week == week && i.game && i.game.GameFull && i.game.GameFull.Title === title)
     if (bet.length > 0) {
@@ -175,6 +210,7 @@ class PickSheet extends Component {
       return '#fff'
     }
   }
+
   getGameResult = (bets, type, week) => {
     let bet = bets.filter(i => i.week == week && i.betType.value === type)
     if (bet.length > 0) {
@@ -223,7 +259,9 @@ class PickSheet extends Component {
         // handle success
         // alert(response.data.length)
         // console.log(response.data.map(m => m.game.Title))
-        self.setState({ bowlList: response.data.map(m => m.game.Title) })
+        const v = _.uniqBy(response.data.map(m => m.game.Title))
+
+        self.setState({ bowlList: v })
         // if (response && response.data.filter(f => f.method.category === 'bowl').length > 0) {
         //   console.log(response.data)
         //   // alert(response.data.length)
@@ -374,47 +412,62 @@ class PickSheet extends Component {
                         this.props.navigation.navigate('ProfileStatistics')
                       }}
                       style={{
-                        //borderRightColor: "rgba(255,255,255,0.05)",
-                        //borderRightWidth: 4,
+                        borderRightColor: 'rgba(255,255,255,0.05)',
+                        borderRightWidth: 4,
                         alignItems: 'center',
                         backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
                         alignItems: 'center',
                         justifyContent: 'center',
                         height: 60,
                       }}>
-                      {Platform.OS === 'ios' && (
-                        <View
-                          style={{
-                            width: RFValue(125),
-                            position: 'absolute',
-                            top: 0,
-                            left: -10,
-                            backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-
-                            shadowColor: '#000',
-                            shadowOffset: {
-                              width: 5,
-                              height: 8,
-                            },
-                            shadowOpacity: 0.29,
-                            shadowRadius: 4.65,
-                            height: 60,
-                            elevation: 7,
-                          }}
-                        />
-                      )}
                       <Text
                         style={{
-                          width: RFValue(150),
+                          color: '#fff',
                           color: jaune,
                           fontFamily: 'Arial',
-                          fontSize: RFValue(10),
+                          fontSize: RFValue(9),
                           fontWeight: '400',
-                          marginLeft: RFValue(40),
-                          paddingVertical: 5,
+                          marginLeft: 5,
                         }}>
-                        #{item.user.username.toUpperCase()}
+                        #{item.user.username.toUpperCase() + ' '}
                       </Text>
+
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          marginTop: 10,
+                          paddingLeft: 5,
+                        }}>
+                        {item.parlays.filter(f => f.week + '' === this.state.week + '').length > 0 && (
+                          <Text style={{ color: item.totalParlay > 0 ? 'green' : 'red', fontSize: RFValue(8) }}>
+                            {'Parlay'} {'  '}
+                          </Text>
+                        )}
+                        {item.resultsPerfecto.filter(f => f.week + '' === this.state.week + '').length > 0 &&
+                          item.resultsPerfecto.filter(f => f.week + '' === this.state.week + '')[0].point > 0 && (
+                            <Text
+                              style={{
+                                color: '#fff',
+                                color: jaune,
+                                fontFamily: 'Arial',
+                                fontSize: RFValue(8),
+                              }}>
+                              {'Perfecto'}
+                              {'  '}
+                            </Text>
+                          )}
+                        <Text
+                          style={{
+                            color: '#fff',
+
+                            color: '#fff',
+                            color: jaune,
+                            fontFamily: 'Arial',
+                            fontSize: RFValue(8),
+                          }}>
+                          {item.total + ' '}
+                        </Text>
+                      </View>
                     </TouchableOpacity>
                   ))}
                 </Animated.ScrollView>
@@ -542,8 +595,22 @@ class PickSheet extends Component {
                                   : {this.state.selected.game.FavoriteScore - this.state.selected.game.UnderdogScore}
                                 </Text>
                               </View>
-
                               <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Win'}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  :{' '}
+                                  {this.state.selected.win && (!this.state.isred || this.state.isred !== 'red')
+                                    ? 'Yes'
+                                    : 'No'}
+                                </Text>
+                              </View>
+                              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                <Text style={{ flex: 2, fontSize: 12 }}>{'Points'}</Text>
+                                <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
+                                  : {this.state.isred && this.state.isred === 'red' ? 0 : this.state.selected.points}
+                                </Text>
+                              </View>
+                              {/* <View style={{ flexDirection: 'row', marginBottom: 10 }}>
                                 <Text style={{ flex: 2, fontSize: 12 }}>{'Win'}</Text>
                                 <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
                                   : {this.state.selected.win ? 'Yes' : 'No'}
@@ -554,7 +621,7 @@ class PickSheet extends Component {
                                 <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
                                   : {this.state.selected.points}
                                 </Text>
-                              </View>
+                              </View> */}
                             </View>
                             <Text
                               style={{
@@ -628,6 +695,17 @@ class PickSheet extends Component {
                           }}>
                           {'GAME 5 (5)'}
                         </Text>
+                        <Text
+                          style={{
+                            width: RFValue(150),
+                            color: '#edd798',
+                            fontFamily: 'Arial',
+                            fontSize: RFValue(11),
+                            fontWeight: '900',
+                            marginLeft: 10,
+                          }}>
+                          {'GAME 6'}
+                        </Text>
                       </View>
                       <FlatList
                         style={{ marginTop: -0.1 }}
@@ -663,7 +741,10 @@ class PickSheet extends Component {
                               <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
-                                    { selected: this.getGameResult(rest, 'game 1', this.state.week) },
+                                    {
+                                      isred: this.isGameWin(item, 'game 1', this.state.week),
+                                      selected: this.getGameResult(rest, 'game 1', this.state.week),
+                                    },
                                     () => {
                                       this._showModal()
                                     },
@@ -672,7 +753,7 @@ class PickSheet extends Component {
                                 <Text
                                   style={{
                                     width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 1', this.state.week),
+                                    color: this.isGameWin(item, 'game 1', this.state.week),
                                     fontFamily: 'Arial',
                                     fontSize: RFValue(9),
                                     fontWeight: '400',
@@ -685,7 +766,10 @@ class PickSheet extends Component {
                               <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
-                                    { selected: this.getGameResult(rest, 'game 2', this.state.week) },
+                                    {
+                                      isred: this.isGameWin(item, 'game 2', this.state.week),
+                                      selected: this.getGameResult(rest, 'game 2', this.state.week),
+                                    },
                                     () => {
                                       this._showModal()
                                     },
@@ -694,7 +778,7 @@ class PickSheet extends Component {
                                 <Text
                                   style={{
                                     width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 2', this.state.week),
+                                    color: this.isGameWin(item, 'game 2', this.state.week),
                                     fontFamily: 'Arial',
                                     fontSize: RFValue(9),
                                     fontWeight: '400',
@@ -706,7 +790,10 @@ class PickSheet extends Component {
                               <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
-                                    { selected: this.getGameResult(rest, 'game 3', this.state.week) },
+                                    {
+                                      isred: this.isGameWin(item, 'game 3', this.state.week),
+                                      selected: this.getGameResult(rest, 'game 3', this.state.week),
+                                    },
                                     () => {
                                       this._showModal()
                                     },
@@ -715,7 +802,7 @@ class PickSheet extends Component {
                                 <Text
                                   style={{
                                     width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 3', this.state.week),
+                                    color: this.isGameWin(item, 'game 3', this.state.week),
                                     fontFamily: 'Arial',
                                     fontSize: RFValue(9),
                                     fontWeight: '400',
@@ -727,7 +814,10 @@ class PickSheet extends Component {
                               <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
-                                    { selected: this.getGameResult(rest, 'game 4', this.state.week) },
+                                    {
+                                      isred: this.isGameWin(item, 'game 4', this.state.week),
+                                      selected: this.getGameResult(rest, 'game 4', this.state.week),
+                                    },
                                     () => {
                                       this._showModal()
                                     },
@@ -736,7 +826,7 @@ class PickSheet extends Component {
                                 <Text
                                   style={{
                                     width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 4', this.state.week),
+                                    color: this.isGameWin(item, 'game 4', this.state.week),
                                     fontFamily: 'Arial',
                                     fontSize: RFValue(9),
                                     fontWeight: '400',
@@ -748,7 +838,10 @@ class PickSheet extends Component {
                               <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
-                                    { selected: this.getGameResult(rest, 'game 5', this.state.week) },
+                                    {
+                                      isred: this.isGameWin(item, 'game 5', this.state.week),
+                                      selected: this.getGameResult(rest, 'game 5', this.state.week),
+                                    },
                                     () => {
                                       this._showModal()
                                     },
@@ -757,13 +850,34 @@ class PickSheet extends Component {
                                 <Text
                                   style={{
                                     width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'game 5', this.state.week),
+                                    color: this.isGameWin(item, 'game 5', this.state.week),
                                     fontFamily: 'Arial',
                                     fontSize: RFValue(9),
                                     fontWeight: '400',
                                     marginLeft: 10,
                                   }}>
                                   {this.game(item.results, 'game 5', this.state.week)}
+                                </Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                onPress={() => {
+                                  this.setState(
+                                    { selected: this.getGameResult(rest, 'game 6', this.state.week) },
+                                    () => {
+                                      this._showModal()
+                                    },
+                                  )
+                                }}>
+                                <Text
+                                  style={{
+                                    width: RFValue(150),
+                                    color: this.isGameWin(item, 'game 6', this.state.week),
+                                    fontFamily: 'Arial',
+                                    fontSize: RFValue(9),
+                                    fontWeight: '400',
+                                    marginLeft: 10,
+                                  }}>
+                                  {this.game(item.results, 'game 6', this.state.week)}
                                 </Text>
                               </TouchableOpacity>
                             </View>
@@ -829,53 +943,49 @@ class PickSheet extends Component {
                     <TouchableOpacity
                       key={index}
                       onPress={() => {
-                        this.props.getHerParlays(item.user._id, this.props.token)
-                        this.props.setHerInfoUser(item.user)
+                        this.props.setHerInfoUser({
+                          _id: item.user._id,
+                        })
                         this.props.navigation.navigate('ProfileStatistics')
                       }}
                       style={{
-                        //borderRightColor: "rgba(255,255,255,0.05)",
-                        //borderRightWidth: 4,
+                        borderRightColor: 'rgba(255,255,255,0.05)',
+                        borderRightWidth: 4,
                         alignItems: 'center',
                         backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
                         alignItems: 'center',
                         justifyContent: 'center',
                         height: 60,
                       }}>
-                      {Platform.OS === 'ios' && (
-                        <View
-                          style={{
-                            width: RFValue(125),
-                            position: 'absolute',
-                            top: 0,
-                            left: -10,
-                            backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-
-                            shadowColor: '#000',
-                            shadowOffset: {
-                              width: 5,
-                              height: 8,
-                            },
-                            shadowOpacity: 0.29,
-                            shadowRadius: 4.65,
-                            height: 60,
-                            elevation: 7,
-                          }}
-                        />
-                      )}
-                      <Text
+                      <View
                         style={{
-                          width: RFValue(150),
-                          color: jaune,
-                          fontFamily: 'Arial',
-                          fontSize: RFValue(10),
-                          fontWeight: '400',
-                          marginLeft: RFValue(40),
-                          paddingVertical: 5,
+                          flexDirection: 'row',
+                          alignItems: 'flex-start',
                         }}>
-                        {/* {`Game ${index + 1} (${25 - index * 5})`} */}
-                        {item.user.username.toUpperCase()}
-                      </Text>
+                        <Text
+                          style={{
+                            color: '#fff',
+                            color: jaune,
+                            fontFamily: 'Arial',
+                            fontSize: RFValue(9),
+                            fontWeight: '400',
+                            flex: 4,
+                          }}>
+                          #{item.user.username.toUpperCase()}
+                        </Text>
+                        <Text
+                          style={{
+                            color: '#fff',
+                            width: 60,
+                            color: '#fff',
+                            color: jaune,
+                            fontFamily: 'Arial',
+                            fontSize: RFValue(8),
+                            flex: 1,
+                          }}>
+                          {item.total}
+                        </Text>
+                      </View>
                     </TouchableOpacity>
                   ))}
                 </Animated.ScrollView>
@@ -1036,17 +1146,6 @@ class PickSheet extends Component {
                           height: 60,
                           alignItems: 'center',
                         }}>
-                        <Text
-                          style={{
-                            width: RFValue(60),
-                            color: '#edd798',
-                            fontFamily: 'Arial',
-                            fontSize: RFValue(12),
-                            fontWeight: '900',
-                            marginLeft: 20,
-                          }}>
-                          {'Points'}
-                        </Text>
                         {this.state.bowlList.map((m, i) => {
                           return (
                             <Text
@@ -1094,24 +1193,6 @@ class PickSheet extends Component {
                                 elevation: 24,
                               }}
                             />
-                            <TouchableOpacity
-                              onPress={() => {
-                                this.setState({ selected: this.getGameResult(rest, 'game 1', this.state.week) }, () => {
-                                  this._showModal()
-                                })
-                              }}>
-                              <Text
-                                style={{
-                                  width: RFValue(60),
-                                  color: '#fff',
-                                  fontFamily: 'Arial',
-                                  fontSize: RFValue(12),
-                                  fontWeight: '600',
-                                  marginLeft: 12,
-                                }}>
-                                {item.total}
-                              </Text>
-                            </TouchableOpacity>
 
                             {this.state.bowlList.map((m, i) => {
                               // console.log(m)
@@ -1128,7 +1209,7 @@ class PickSheet extends Component {
                                       width: 150,
                                       color: this.isGameWinBowl(item.results, m, BOWLWEEK),
                                       fontFamily: 'Arial',
-                                      fontSize: RFValue(12),
+                                      fontSize: RFValue(10),
                                       fontWeight: '600',
                                       marginLeft: 15,
 
@@ -1204,47 +1285,62 @@ class PickSheet extends Component {
                         this.props.navigation.navigate('ProfileStatistics')
                       }}
                       style={{
-                        //borderRightColor: "rgba(255,255,255,0.05)",
-                        //borderRightWidth: 4,
-                        alignItems: 'center',
+                        borderRightColor: 'rgba(255,255,255,0.05)',
+                        borderRightWidth: 4,
+                        // alignItems: 'center',
                         backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-                        alignItems: 'center',
+                        // alignItems: 'center',
                         justifyContent: 'center',
                         height: 60,
                       }}>
-                      {Platform.OS === 'ios' && (
-                        <View
-                          style={{
-                            width: RFValue(125),
-                            position: 'absolute',
-                            top: 0,
-                            left: -10,
-                            backgroundColor: index % 2 == 0 ? '#191919' : '#282828',
-
-                            shadowColor: '#000',
-                            shadowOffset: {
-                              width: 5,
-                              height: 8,
-                            },
-                            shadowOpacity: 0.29,
-                            shadowRadius: 4.65,
-                            height: 60,
-                            elevation: 7,
-                          }}
-                        />
-                      )}
                       <Text
                         style={{
-                          width: RFValue(150),
+                          color: '#fff',
                           color: jaune,
                           fontFamily: 'Arial',
-                          fontSize: RFValue(10),
+                          fontSize: RFValue(9),
                           fontWeight: '400',
-                          marginLeft: RFValue(40),
-                          paddingVertical: 5,
+                          marginLeft: 5,
                         }}>
-                        #{item.user.username.toUpperCase()}
+                        #{item.user.username.toUpperCase() + ' '}
                       </Text>
+
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          marginTop: 10,
+                          paddingLeft: 5,
+                        }}>
+                        {item.parlays.filter(f => f.week + '' === this.state.week + '').length > 0 && (
+                          <Text style={{ color: item.totalParlay > 0 ? 'green' : 'red', fontSize: RFValue(8) }}>
+                            {'Parlay'} {'  '}
+                          </Text>
+                        )}
+                        {item.resultsPerfecto.filter(f => f.week + '' === this.state.week + '').length > 0 &&
+                          item.resultsPerfecto.filter(f => f.week + '' === this.state.week + '')[0].point > 0 && (
+                            <Text
+                              style={{
+                                color: '#fff',
+                                color: jaune,
+                                fontFamily: 'Arial',
+                                fontSize: RFValue(8),
+                              }}>
+                              {'Perfecto'}
+                              {'  '}
+                            </Text>
+                          )}
+                        <Text
+                          style={{
+                            color: '#fff',
+
+                            color: '#fff',
+                            color: jaune,
+                            fontFamily: 'Arial',
+                            fontSize: RFValue(8),
+                          }}>
+                          {item.total + ' '}
+                        </Text>
+                      </View>
                     </TouchableOpacity>
                   ))}
                 </Animated.ScrollView>
@@ -1376,13 +1472,16 @@ class PickSheet extends Component {
                               <View style={{ flexDirection: 'row', marginBottom: 10 }}>
                                 <Text style={{ flex: 2, fontSize: 12 }}>{'Win'}</Text>
                                 <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.win ? 'Yes' : 'No'}
+                                  :{' '}
+                                  {this.state.selected.win && (!this.state.isred || this.state.isred !== 'red')
+                                    ? 'Yes'
+                                    : 'No'}
                                 </Text>
                               </View>
                               <View style={{ flexDirection: 'row', marginBottom: 10 }}>
                                 <Text style={{ flex: 2, fontSize: 12 }}>{'Points'}</Text>
                                 <Text style={{ flex: 3, fontSize: 12, fontWeight: '700' }}>
-                                  : {this.state.selected.points}
+                                  : {this.state.isred && this.state.isred === 'red' ? 0 : this.state.selected.points}
                                 </Text>
                               </View>
                             </View>
@@ -1403,7 +1502,7 @@ class PickSheet extends Component {
                           height: 60,
                           alignItems: 'center',
                         }}>
-                        <Text
+                        {/* <Text
                           style={{
                             width: RFValue(40),
                             color: '#edd798',
@@ -1413,7 +1512,7 @@ class PickSheet extends Component {
                             marginLeft: 20,
                           }}>
                           {'POINTS'}
-                        </Text>
+                        </Text> */}
                         <Text
                           style={{
                             width: RFValue(150),
@@ -1512,7 +1611,7 @@ class PickSheet extends Component {
                                   elevation: 24,
                                 }}
                               />
-                              <TouchableOpacity
+                              {/* <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
                                     { selected: this.getGameResult(rest, 'power game', this.state.week) },
@@ -1532,11 +1631,14 @@ class PickSheet extends Component {
                                   }}>
                                   {item.total}
                                 </Text>
-                              </TouchableOpacity>
+                              </TouchableOpacity> */}
                               <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
-                                    { selected: this.getGameResult(rest, 'power game', this.state.week) },
+                                    {
+                                      isred: null,
+                                      selected: this.getGameResult(rest, 'power game', this.state.week),
+                                    },
                                     () => {
                                       this._showModal()
                                     },
@@ -1545,7 +1647,7 @@ class PickSheet extends Component {
                                 <Text
                                   style={{
                                     width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'power game', this.state.week),
+                                    color: this.isGameWin(item, 'power game', this.state.week),
                                     fontFamily: 'Arial',
                                     fontSize: RFValue(9),
                                     fontWeight: '400',
@@ -1558,7 +1660,10 @@ class PickSheet extends Component {
                               <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
-                                    { selected: this.getGameResult(rest, 'binding game', this.state.week) },
+                                    {
+                                      isred: null,
+                                      selected: this.getGameResult(rest, 'binding game', this.state.week),
+                                    },
                                     () => {
                                       this._showModal()
                                     },
@@ -1567,7 +1672,7 @@ class PickSheet extends Component {
                                 <Text
                                   style={{
                                     width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'binding game', this.state.week),
+                                    color: this.isGameWin(item, 'binding game', this.state.week),
                                     fontFamily: 'Arial',
                                     fontSize: RFValue(9),
                                     fontWeight: '400',
@@ -1579,7 +1684,10 @@ class PickSheet extends Component {
                               <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
-                                    { selected: this.getGameResult(rest, 'pick1', this.state.week) },
+                                    {
+                                      isred: this.isGameWin(item, 'pick1', this.state.week),
+                                      selected: this.getGameResult(rest, 'pick1', this.state.week),
+                                    },
                                     () => {
                                       this._showModal()
                                     },
@@ -1588,7 +1696,7 @@ class PickSheet extends Component {
                                 <Text
                                   style={{
                                     width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'pick1', this.state.week),
+                                    color: this.isGameWin(item, 'pick1', this.state.week),
                                     fontFamily: 'Arial',
                                     fontSize: RFValue(9),
                                     fontWeight: '400',
@@ -1600,7 +1708,10 @@ class PickSheet extends Component {
                               <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
-                                    { selected: this.getGameResult(rest, 'pick2', this.state.week) },
+                                    {
+                                      isred: this.isGameWin(item, 'pick2', this.state.week),
+                                      selected: this.getGameResult(rest, 'pick2', this.state.week),
+                                    },
                                     () => {
                                       this._showModal()
                                     },
@@ -1609,7 +1720,7 @@ class PickSheet extends Component {
                                 <Text
                                   style={{
                                     width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'pick2', this.state.week),
+                                    color: this.isGameWin(item, 'pick2', this.state.week),
                                     fontFamily: 'Arial',
                                     fontSize: RFValue(9),
                                     fontWeight: '400',
@@ -1621,7 +1732,10 @@ class PickSheet extends Component {
                               <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
-                                    { selected: this.getGameResult(rest, 'pick3', this.state.week) },
+                                    {
+                                      isred: this.isGameWin(item, 'pick3', this.state.week),
+                                      selected: this.getGameResult(rest, 'pick3', this.state.week),
+                                    },
                                     () => {
                                       this._showModal()
                                     },
@@ -1630,7 +1744,7 @@ class PickSheet extends Component {
                                 <Text
                                   style={{
                                     width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'pick3', this.state.week),
+                                    color: this.isGameWin(item, 'pick3', this.state.week),
                                     fontFamily: 'Arial',
                                     fontSize: RFValue(9),
                                     fontWeight: '400',
@@ -1642,7 +1756,7 @@ class PickSheet extends Component {
                               <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
-                                    { selected: this.getGameResult(rest, 'dog game', this.state.week) },
+                                    { isred: null, selected: this.getGameResult(rest, 'dog game', this.state.week) },
                                     () => {
                                       this._showModal()
                                     },
@@ -1651,7 +1765,7 @@ class PickSheet extends Component {
                                 <Text
                                   style={{
                                     width: RFValue(150),
-                                    color: this.isGameWin(item.results, 'dog game', this.state.week),
+                                    color: this.isGameWin(item, 'dog game', this.state.week),
                                     fontFamily: 'Arial',
                                     fontSize: RFValue(9),
                                     fontWeight: '400',

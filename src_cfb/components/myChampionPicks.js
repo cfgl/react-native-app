@@ -168,26 +168,19 @@ class MyPicks extends Component {
     let ranGame = list.length > 1 ? Math.floor(Math.random() * (list.length - 1) + 0) : 0
 
     //Get one of the method type
-    let ranMethod = Math.floor(Math.random() * (methods.length - 1) + 0)
-    this.setState({ method: methods[ranMethod], game: list[ranGame], conferenceCFB: conferences[ranConf] }, () => {
-      //It's Time to place your Bet
-      // console.log(list)
-      if (ranGame !== -1 && ranMethod !== -1 && ranConf !== -1) {
-        // console.log({
-        //   game: this.state.game,
-        //   method: this.state.method,
-        //   locked: this.state.isSwitchOn,
-        //   quick: this.state.checked,
-        //   conference: this.state.conferenceCFB,
-        // })
-        // this.setState(
-        //   {
-        //     game: list[ranGame],
-        //     method: methods[ranMethod],
-        //     isSwitchOn: true,
-        //     conferenceCFB: conferences[ranConf],
-        //   },
-        //   () => {
+    // let ranMethod = Math.floor(Math.random() * (methods.length - 1) + 0)]
+
+    let ranMethod = 0
+    if (this.props.name !== 'Game 6') {
+      //Get one of the method type
+      ranMethod = Math.floor(Math.random() * (methods.length - 1) + 0)
+    } else {
+      ranMethod = 4
+    }
+    //It's Time to place your Bet
+    // console.log(list)
+    if (list.length > 0 && ranGame !== -1 && ranMethod !== -1 && ranConf !== -1) {
+      this.setState({ method: methods[ranMethod], game: list[ranGame], conferenceCFB: conferences[ranConf] }, () => {
         this.props.onChoose({
           game: this.state.game,
           method: this.state.method,
@@ -195,12 +188,10 @@ class MyPicks extends Component {
           quick: this.state.checked,
           conference: conferences[ranConf],
         })
-        //   },
-        // )
-      } else {
-        alert('No game found for type of pick')
-      }
-    })
+      })
+    } else {
+      alert('No game found for type of pick')
+    }
   }
 
   render() {
@@ -280,16 +271,22 @@ class MyPicks extends Component {
 
         {/* card Footer */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <TouchableOpacity
-            onPress={() => {
-              if (isSwitchOn == false) {
-                this.showTypeBet()
-              }
-            }}
-            style={styles.middleTypeSelectedWrapper}>
-            <Text style={styles.middleTypeSelected}>{method.value ? method.value.toUpperCase() : 'PICK TYPE'}</Text>
-            <Ionicons name={'ios-arrow-down'} color={jaune} size={20} />
-          </TouchableOpacity>
+          {name === 'Game 6 | 6 points' ? (
+            <View style={styles.middleTypeSelectedWrapper}>
+              <Text style={styles.middleTypeSelected}>{'$LINE'}</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={() => {
+                if (isSwitchOn == false) {
+                  this.showTypeBet()
+                }
+              }}
+              style={styles.middleTypeSelectedWrapper}>
+              <Text style={styles.middleTypeSelected}>{method.value ? method.value.toUpperCase() : 'PICK TYPE'}</Text>
+              <Ionicons name={'ios-arrow-down'} color={jaune} size={20} />
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity
             onPress={() => {
@@ -373,21 +370,14 @@ class MyPicks extends Component {
         <ActionSheet
           ref={o => (this.methodBet = o)}
           title={'Select the pick method.'}
-          options={
-            name === 'dog game'
-              ? [
-                  { type: 'moneyLine', label: 'MoneyLine $line', value: '$line' },
-                  { type: '', label: '', value: 'Cancel' },
-                ].map(i => i.value)
-              : methods.map(i => i.value)
-          }
-          cancelButtonIndex={name == 'dog game' ? 1 : methods.length - 1}
+          options={methods.map(i => i.value)}
+          cancelButtonIndex={name == 'Game 6 | 6 points' ? 1 : methods.length - 1}
           // destructiveButtonIndex={1}
           onPress={index => {
-            let canc = name !== 'dog game' ? methods.length - 1 : 1
+            let canc = methods.length - 1
 
             if (index !== canc) {
-              if (name === 'dog game') {
+              if (name === 'Game 6 | 6 points') {
                 onChoose({
                   game: this.state.game,
                   method: {
@@ -566,13 +556,27 @@ class MyPicks extends Component {
                           game: data.filter(i => i.GameID === item.GameID)[0],
                         },
                         () => {
-                          onChoose({
-                            game: this.state.game,
-                            method: this.state.method,
-                            locked: this.state.isSwitchOn,
-                            quick: this.state.checked,
-                            conference: this.state.conferenceCFB,
-                          })
+                          if (this.props.name === 'Game 6 | 6 points') {
+                            onChoose({
+                              game: this.state.game,
+                              method: {
+                                type: 'moneyLine',
+                                label: 'MoneyLine $line',
+                                value: '$line',
+                              },
+                              locked: this.state.isSwitchOn,
+                              quick: this.state.checked,
+                              conference: this.state.conferenceCFB,
+                            })
+                          } else {
+                            onChoose({
+                              game: this.state.game,
+                              method: this.state.method,
+                              locked: this.state.isSwitchOn,
+                              quick: this.state.checked,
+                              conference: this.state.conferenceCFB,
+                            })
+                          }
                         },
                       )
 

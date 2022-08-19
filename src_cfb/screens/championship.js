@@ -89,6 +89,11 @@ class Pick extends Component {
           label: 'Game 5 | 5 points',
           point: 5,
         },
+        {
+          value: 'game 6',
+          label: 'Game 6',
+          point: 0,
+        },
       ],
       championshipGame: [],
       bets: [],

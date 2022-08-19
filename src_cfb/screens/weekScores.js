@@ -9,6 +9,7 @@ import { jaune, noir, gris } from '../styles/colors'
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize'
 import { getWeekGames } from '../services/games'
 import { SCREEN_WIDTH } from '../utils/variables'
+import { Searchbar } from 'react-native-paper'
 
 const styles = StyleSheet.create({
   app: {
@@ -61,6 +62,7 @@ class Pick extends Component {
         { value: 'dog game', label: 'dog game', point: 0 },
       ],
       games: [],
+      firstQuery: '',
     }
   }
 
@@ -107,6 +109,22 @@ class Pick extends Component {
           <RefreshControl tintColor={'#fff'} refreshing={this.state.refreshing} onRefresh={this.onRefresh} />
         }>
         <StatusBar backgroundColor={gris} barStyle="light-content" />
+
+        <Searchbar
+          placeholder="Search"
+          placeholderTextColor={jaune}
+          fontSize={RFValue(14)}
+          style={{
+            backgroundColor: gris,
+            borderBottomColor: jaune,
+            borderBottomWidth: 2,
+            marginBottom: 20,
+          }}
+          onChangeText={async query => {
+            this.setState({ firstQuery: query }, async () => {})
+          }}
+          value={this.state.firstQuery}
+        />
         <Text style={{ color: '#fff', marginHorizontal: 20, marginBottom: 10, alignSelf: 'center' }}>
           {'Last update: '}
           {this.props.lastUpdate
@@ -114,117 +132,119 @@ class Pick extends Component {
             : new Date(this.props.lastUpdate).toLocaleString()}{' '}
           {/* {this.props.lastUpdate.toLocaleString()} */}
         </Text>
-        {this.state.games.map(game => {
-          return (
-            <View>
-              <View
-                style={{
-                  width: '96%',
-
-                  backgroundColor: jaune,
-                  paddingVertical: 20,
-                  paddingHorizontal: 20,
-                  marginBottom: 20,
-                  alignSelf: 'center',
-                }}>
+        {this.state.games
+          .filter(f => JSON.stringify(f).toLocaleLowerCase().includes(this.state.firstQuery.toLocaleLowerCase()))
+          .map(game => {
+            return (
+              <View>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    backgroundColor: '#950338',
-                    height: 30,
-                    alignItems: 'center',
-                    paddingHorizontal: 10,
+                    width: '96%',
+
+                    backgroundColor: jaune,
+                    paddingVertical: 20,
+                    paddingHorizontal: 20,
+                    marginBottom: 20,
+                    alignSelf: 'center',
                   }}>
                   <View
                     style={{
                       flexDirection: 'row',
-                    }}>
-                    <Text style={{ color: jaune, fontSize: 15, fontWeight: 'bold' }}>
-                      {game.DateTime
-                        ? new Date(game.DateTime).toLocaleDateString() + ' ' + this.formatTime(game.DateTime)
-                        : new Date(game.Day).toLocaleString()}
-                    </Text>
-                  </View>
-                  <Text
-                    style={{
-                      color: jaune,
-                    }}>
-                    {game.Status.toUpperCase()}
-                  </Text>
-                </View>
-
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginTop: 10,
-                  }}>
-                  <View
-                    style={{
-                      justifyContent: 'center',
+                      justifyContent: 'space-between',
+                      backgroundColor: '#950338',
+                      height: 30,
                       alignItems: 'center',
-                      width: RFValue(80),
-                      height: RFValue(80),
-                      borderRadius: 100,
-                      backgroundColor: '#191919',
-                      fontWeight: '900',
+                      paddingHorizontal: 10,
                     }}>
-                    <Text style={{ color: jaune, fontSize: RFValue(15) }}>
-                      {game.PointSpread && game.PointSpread < 0 ? game.HomeTeam : game.AwayTeam}
-                    </Text>
-                  </View>
-
-                  <View
-                    style={{
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      paddingTop: 0,
-                      flex: 1,
-                    }}>
-                    {game && game.Status !== 'Scheduled' ? (
-                      <Text
-                        style={{
-                          color: noir,
-                          fontSize: RFValue(25),
-                          // fontFamily: "Monda",
-                          fontWeight: 'bold',
-                        }}>
-                        {game.PointSpread && game.PointSpread < 0 ? game.HomeTeamScore : game.AwayTeamScore}
-                        {' - '}
-                        {game.PointSpread && game.PointSpread < 0 ? game.AwayTeamScore : game.HomeTeamScore}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                      }}>
+                      <Text style={{ color: jaune, fontSize: 15, fontWeight: 'bold' }}>
+                        {game.DateTime
+                          ? new Date(game.DateTime).toLocaleDateString() + ' ' + this.formatTime(game.DateTime)
+                          : new Date(game.Day).toLocaleString()}
                       </Text>
-                    ) : (
-                      <Text
-                        style={{
-                          color: noir,
-                          fontSize: RFValue(25),
-                          // fontFamily: "Monda",
-                          fontWeight: 'bold',
-                        }}>
-                        {'VS'}
-                      </Text>
-                    )}
+                    </View>
+                    <Text
+                      style={{
+                        color: jaune,
+                      }}>
+                      {game.Status.toUpperCase()}
+                    </Text>
                   </View>
 
                   <View
                     style={{
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      width: RFValue(80),
-                      height: RFValue(80),
-                      borderRadius: RFValue(40),
-                      backgroundColor: '#191919',
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginTop: 10,
                     }}>
-                    <Text style={{ color: jaune, fontSize: RFValue(15) }}>
-                      {game.PointSpread && game.PointSpread < 0 ? game.AwayTeam : game.HomeTeam}
-                    </Text>
+                    <View
+                      style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: RFValue(80),
+                        height: RFValue(80),
+                        borderRadius: 100,
+                        backgroundColor: '#191919',
+                        fontWeight: '900',
+                      }}>
+                      <Text style={{ color: jaune, fontSize: RFValue(15) }}>
+                        {game.PointSpread && game.PointSpread < 0 ? game.HomeTeam : game.AwayTeam}
+                      </Text>
+                    </View>
+
+                    <View
+                      style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingTop: 0,
+                        flex: 1,
+                      }}>
+                      {game && game.Status !== 'Scheduled' ? (
+                        <Text
+                          style={{
+                            color: noir,
+                            fontSize: RFValue(25),
+                            // fontFamily: "Monda",
+                            fontWeight: 'bold',
+                          }}>
+                          {game.PointSpread && game.PointSpread < 0 ? game.HomeTeamScore : game.AwayTeamScore}
+                          {' - '}
+                          {game.PointSpread && game.PointSpread < 0 ? game.AwayTeamScore : game.HomeTeamScore}
+                        </Text>
+                      ) : (
+                        <Text
+                          style={{
+                            color: noir,
+                            fontSize: RFValue(25),
+                            // fontFamily: "Monda",
+                            fontWeight: 'bold',
+                          }}>
+                          {'VS'}
+                        </Text>
+                      )}
+                    </View>
+
+                    <View
+                      style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: RFValue(80),
+                        height: RFValue(80),
+                        borderRadius: RFValue(40),
+                        backgroundColor: '#191919',
+                      }}>
+                      <Text style={{ color: jaune, fontSize: RFValue(15) }}>
+                        {game.PointSpread && game.PointSpread < 0 ? game.AwayTeam : game.HomeTeam}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </View>
-            </View>
-          )
-        })}
+            )
+          })}
 
         <View style={{ height: 20 }} />
       </ScrollView>

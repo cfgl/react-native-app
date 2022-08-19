@@ -132,23 +132,25 @@ class profileTab extends Component {
     let self = this
 
     this.setState({ refreshing: true })
+    this.playerInfo()
 
     // this.props.getGroupBets(this.props.user.group._id, this.props.token)
     // this.props.getPlayers(null, this.props.token)
 
-    axios
-      .get(`${SERVER}/betscfbs/players?user._id=${this.props.user._id}`, {
-        headers: {
-          Authorization: `Bearer ${this.props.token}`,
-        },
-      })
-      .then(function (response) {
-        // console.log(response.data.length)
-        self.setState({ players: response.data })
-      })
-      .catch(function (error) {
-        console.log(JSON.stringify(error, null, 2))
-      })
+    // axios
+    //   .get(`${SERVER}/betscfbs/players?user._id=${this.props.user._id}`, {
+    //     headers: {
+    //       Authorization: `Bearer ${this.props.token}`,
+    //     },
+    //   })
+    //   .then(function (response) {
+    //     alert('')
+    //     // console.log(response.data.length)
+    //     self.setState({ players: response.data })
+    //   })
+    //   .catch(function (error) {
+    //     console.log(JSON.stringify(error, null, 2))
+    //   })
     setTimeout(() => {
       this.setState({ refreshing: false })
     }, 2000)
@@ -157,7 +159,9 @@ class profileTab extends Component {
     return (
       <ScrollView
         style={{}}
-        refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />}>
+        refreshControl={
+          <RefreshControl tintColor={'#fff'} refreshing={this.state.refreshing} onRefresh={this.onRefresh} />
+        }>
         <View
           style={{
             flexDirection: 'row',
@@ -378,7 +382,7 @@ class profileTab extends Component {
               flex: 1,
               color: '#edd798',
               fontFamily: 'Arial',
-              fontSize: RFValue(14),
+              fontSize: RFValue(12),
               fontWeight: '600',
               padding: 10,
             }}>
@@ -404,7 +408,7 @@ class profileTab extends Component {
               flex: 1,
               color: '#edd798',
               fontFamily: 'Arial',
-              fontSize: RFValue(14),
+              fontSize: RFValue(12),
               fontWeight: '600',
               padding: 10,
             }}>
@@ -430,7 +434,7 @@ class profileTab extends Component {
               flex: 1,
               color: '#edd798',
               fontFamily: 'Arial',
-              fontSize: RFValue(14),
+              fontSize: RFValue(12),
               fontWeight: '600',
               padding: 10,
             }}>
@@ -456,7 +460,7 @@ class profileTab extends Component {
               flex: 1,
               color: '#edd798',
               fontFamily: 'Arial',
-              fontSize: RFValue(14),
+              fontSize: RFValue(12),
               fontWeight: '600',
               padding: 10,
             }}>
@@ -482,7 +486,7 @@ class profileTab extends Component {
               flex: 1,
               color: '#edd798',
               fontFamily: 'Arial',
-              fontSize: RFValue(14),
+              fontSize: RFValue(12),
               fontWeight: '600',
               padding: 10,
             }}>
@@ -509,7 +513,7 @@ class profileTab extends Component {
               flex: 1,
               color: '#edd798',
               fontFamily: 'Arial',
-              fontSize: RFValue(14),
+              fontSize: RFValue(12),
               fontWeight: '600',
               padding: 10,
             }}>
@@ -535,7 +539,7 @@ class profileTab extends Component {
               flex: 1,
               color: '#edd798',
               fontFamily: 'Arial',
-              fontSize: RFValue(14),
+              fontSize: RFValue(12),
               fontWeight: '600',
               padding: 10,
             }}>
@@ -559,7 +563,7 @@ class profileTab extends Component {
         <ScrollView horizontal style={{ backgroundColor: '#191919', height: 110 }}>
           <View style={{ paddingHorizontal: 4, alignSelf: 'center' }}>
             <View style={{ flexDirection: 'row' }}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(a => (
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(a => (
                 <View
                   key={a}
                   style={{
@@ -576,7 +580,7 @@ class profileTab extends Component {
               ))}
             </View>
             <View style={{ flexDirection: 'row' }}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(a => (
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(a => (
                 <View
                   key={a}
                   style={{
