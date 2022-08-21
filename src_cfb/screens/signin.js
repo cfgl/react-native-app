@@ -116,6 +116,7 @@ class signin extends Component {
 
           <Formik
             enableReinitialize
+            validateOnChange={false}
             initialValues={{
               email: '',
               password: '',

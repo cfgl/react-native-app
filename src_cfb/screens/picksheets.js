@@ -146,20 +146,54 @@ class PickSheet extends Component {
     let bet = res.filter(i => i.week == week && i.betType.value === type)
     if (bet.length > 0) {
       if (bet[0].game.GameFull.Status === 'Final' || bet[0].game.GameFull.Status === 'F/OT') {
-        if (
-          bet[0].win == true &&
-          bet[0].game.rats !== 'PUSH' &&
-          (this.winParley(bets, week, bet[0].betType) === -1 || this.winParley(bets, week, bet[0].betType) === 1)
-        ) {
-          return 'green'
-        } else if (
-          bet[0].win == true &&
-          bet[0].game.rats === 'PUSH' &&
-          (this.winParley(bets, week, bet[0].betType) === -1 || this.winParley(bets, week, bet[0].betType) === 1)
-        ) {
-          return 'orange'
-        } else if (bet[0].win == false || this.winParley(bets, week, bet[0].betType) === 0) {
-          return 'red'
+        if (bet[0].betMethod.type === 'spread') {
+          if (
+            bet[0].win == true &&
+            bet[0].game.rats !== 'PUSH' &&
+            (this.winParley(bets, week, bet[0].betType) === -1 || this.winParley(bets, week, bet[0].betType) === 1)
+          ) {
+            return 'green'
+          } else if (
+            bet[0].win == true &&
+            bet[0].game.rats === 'PUSH' &&
+            (this.winParley(bets, week, bet[0].betType) === -1 || this.winParley(bets, week, bet[0].betType) === 1)
+          ) {
+            return 'orange'
+          } else if (bet[0].win == false || this.winParley(bets, week, bet[0].betType) === 0) {
+            return 'red'
+          }
+        } else if (bet[0].betMethod.type === 'total') {
+          if (
+            bet[0].win == true &&
+            bet[0].game.ou_result !== 'PUSH' &&
+            (this.winParley(bets, week, bet[0].betType) === -1 || this.winParley(bets, week, bet[0].betType) === 1)
+          ) {
+            return 'green'
+          } else if (
+            bet[0].win == true &&
+            bet[0].game.ou_result === 'PUSH' &&
+            (this.winParley(bets, week, bet[0].betType) === -1 || this.winParley(bets, week, bet[0].betType) === 1)
+          ) {
+            return 'orange'
+          } else if (bet[0].win == false || this.winParley(bets, week, bet[0].betType) === 0) {
+            return 'red'
+          }
+        } else {
+          if (
+            bet[0].win == true &&
+            bet[0].game.rats !== 'PUSH' &&
+            (this.winParley(bets, week, bet[0].betType) === -1 || this.winParley(bets, week, bet[0].betType) === 1)
+          ) {
+            return 'green'
+          } else if (
+            bet[0].win == true &&
+            bet[0].game.rats === 'PUSH' &&
+            (this.winParley(bets, week, bet[0].betType) === -1 || this.winParley(bets, week, bet[0].betType) === 1)
+          ) {
+            return 'orange'
+          } else if (bet[0].win == false || this.winParley(bets, week, bet[0].betType) === 0) {
+            return 'red'
+          }
         }
       } else {
         return jaune

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Animated, Platform, StyleSheet, ScrollView, Text, View, FlatList, Image } from 'react-native'
+import { Animated, Platform, StyleSheet, RefreshControl, ScrollView, Text, View, FlatList, Image } from 'react-native'
 import _ from 'lodash'
 import { jaune, noir } from '../styles/colors'
 import { connect } from 'react-redux'
@@ -23,6 +23,7 @@ class PickSheet extends Component {
       refreshing: false,
       group: this.props.user.group,
       players: [],
+      refreshing: false,
     }
 
     this.props.getPlayers(null, this.props.token)
@@ -40,6 +41,15 @@ class PickSheet extends Component {
   }
 
   componentDidUpdate(prevProps) {}
+
+  onRefresh = () => {
+    this.setState({ refreshing: true })
+    this.props.getPlayers(null, this.props.token)
+
+    setTimeout(() => {
+      this.setState({ refreshing: false })
+    }, 2000)
+  }
   render() {
     // Because of content inset the scroll value will be negative on iOS so bring
     // it back to 0.
@@ -51,7 +61,11 @@ class PickSheet extends Component {
     })
 
     return (
-      <ScrollView style={{}}>
+      <ScrollView
+        style={{}}
+        refreshControl={
+          <RefreshControl tintColor={'#fff'} refreshing={this.state.refreshing} onRefresh={this.onRefresh} />
+        }>
         <View style={{ backgroundColor: noir, marginTop: 0 }}>
           <Image
             source={

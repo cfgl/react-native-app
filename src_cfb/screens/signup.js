@@ -11,8 +11,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native'
-import UsersConditions from './usersConditions'
-import { Button, Snackbar, Modal, Portal, Checkbox } from 'react-native-paper'
+import { Button, Snackbar, Modal, Portal } from 'react-native-paper'
 import { jaune, noir, gris } from '../styles/colors'
 import { Formik } from 'formik'
 import * as yup from 'yup'
@@ -22,7 +21,7 @@ import { SERVER } from '../redux/actionTypes'
 import axios from 'axios'
 import { WebView } from 'react-native-webview'
 import { SCREEN_HEIGHT } from '../utils/variables'
-import { RFPercentage, RFValue } from 'react-native-responsive-fontsize'
+import { RFValue } from 'react-native-responsive-fontsize'
 
 import { Ionicons } from 'react-native-vector-icons'
 
@@ -108,6 +107,7 @@ class signup extends Component {
           ) : null}
           <Formik
             enableReinitialize
+            validateOnChange={false}
             initialValues={
               {
                 // fullname: 'The Code',

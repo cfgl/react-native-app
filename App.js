@@ -3,10 +3,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Provider as PaperProvider } from 'react-native-paper'
 import Nav_cfb from './src_cfb/navigators'
 
-import DefaultTheme from './src/styles/DefaultTheme'
+import DefaultTheme from './src_cfb/styles/DefaultTheme'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/lib/integration/react'
-import { store, persistor } from './src/redux/store'
+import { store, persistor } from './src_cfb/redux/store'
 import OneSignal from 'react-native-onesignal' // Import package from node modules
 import { ONSIGNAL_KEY } from '@env'
 const theme = {

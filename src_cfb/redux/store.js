@@ -17,7 +17,7 @@ import user from './reducers/user'
 import otherUser from './reducers/otherUser'
 import game from './reducers/game'
 const rootReducer = persistCombineReducers(config, {
-  // user: user,
+  user: user,
   otherUser: otherUser,
   game: game,
 })
