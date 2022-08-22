@@ -339,7 +339,7 @@ class BowlSeason extends Component {
               padding: 20,
               marginVertical: 20,
             }}>
-            {`Remember, your “${this.state.weekGames.length}” game is worth ${this.state.weekGames.length} points and your “1” game is worth 1 point. Your “15” game is worth 15 points, and so on and so forth. Simply drag the game to the position you want them.`}
+            {`Remember, your “${this.state.weekGames.length}” game is worth ${this.state.weekGames.length} points and your “1” game is worth 1 point. Your “15” game is worth 15 points, and so on and so forth.`}
           </Text>
 
           {this.state.weekGames.map((item, index) => {
