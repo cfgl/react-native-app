@@ -376,7 +376,7 @@ class Pick extends Component {
               return (
                 <View key={index}>
                   <MyGames live={true} game={takeBet.game} parlay={parlay} type={item.label} method={takeBet.method} />
-                  {item.value === 'game 5' && this.state.off === true && (
+                  {/* {item.value === 'game 5' && this.state.off === true && (
                     <View
                       style={{
                         alignSelf: 'center',
@@ -521,7 +521,7 @@ class Pick extends Component {
                         )}
                       </PopoverController>
                     </TouchableOpacity>
-                  )}
+                  )} */}
                 </View>
               )
             } else {
@@ -588,7 +588,7 @@ class Pick extends Component {
                       }
                     }}
                   />
-                  {item.value === 'game 5' ? (
+                  {/* {item.value === 'game 5' ? (
                     <TouchableOpacity
                       style={{
                         alignSelf: 'center',
@@ -693,7 +693,7 @@ class Pick extends Component {
                         )}
                       </PopoverController>
                     </TouchableOpacity>
-                  ) : null}
+                  ) : null} */}
                 </View>
               )
             }
