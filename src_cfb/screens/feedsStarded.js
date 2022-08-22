@@ -65,11 +65,21 @@ class feeds extends Component {
       topUserPercentGameWin: 0,
       topUserTotalGameWin: 0,
 
+      topPlayerWeek: {},
+      topUserTotalPntWeek: 0,
+      topUserPercentGameWinWeek: 0,
+      topUserTotalGameWinWeek: 0,
+
       //group state
       topGroup: {},
       topGroupGamesWin: 0,
       topGroupPercentWin: 0,
       topGroupTotaltWin: 0,
+
+      topGroupWeek: {},
+      topGroupGamesWinWeek: 0,
+      topGroupPercentWinWeek: 0,
+      topGroupTotaltWinWeek: 0,
 
       playersByGroup: [],
 
@@ -224,7 +234,7 @@ class feeds extends Component {
       })
     }
 
-    const respGetAllPlayersByWeek = await getAllPlayersByWeek(prevWeek, this.props.currentYear, this.props.token)
+    const respGetAllPlayersByWeek = await getAllPlayersByWeek(prevWeek, this.props.currentYear + '', this.props.token)
     if (respGetAllPlayersByWeek && respGetAllPlayersByWeek.data) {
       this.setState({ playersByWeek: respGetAllPlayersByWeek.data }, () => {
         if (this.state.players && this.state.players.length > 0) {
@@ -311,16 +321,17 @@ class feeds extends Component {
         let toPlayerGames = _topPlayer.results
         // Total points win
         let _topUserTotalPnt = _topPlayer.total
+
         //Total games win
         let _topUserTotalGameWin = toPlayerGames.filter(a => a.win).length
         //Percentage games win
         let _topUserPercentGameWin = _topUserTotalGameWin / toPlayerGames.length
 
         this.setState({
-          topPlayer: _topPlayer,
-          topUserTotalPnt: _topUserTotalPnt,
-          topUserPercentGameWin: _topUserPercentGameWin.toFixed(1) * 100,
-          topUserTotalGameWin: _topUserTotalGameWin,
+          topPlayerWeek: _topPlayer,
+          topUserTotalPntWeek: _topUserTotalPnt,
+          topUserPercentGameWinWeek: _topUserPercentGameWin.toFixed(1) * 100,
+          topUserTotalGameWinWeek: _topUserTotalGameWin,
         })
       }
     }
@@ -357,7 +368,7 @@ class feeds extends Component {
         return i.player
       })
 
-      this.setState({ playersByGroup: GroupByGroup(this.state.players) })
+      this.setState({ playersByGroup: GroupByGroup(this.state.playersByWeek) })
       if (_playersByGroup) {
         let topGroup = _.orderBy(_playersByGroup, ['groupTotal'], ['desc'])[0]
 
@@ -375,10 +386,10 @@ class feeds extends Component {
 
           //Set stats to state
           this.setState({
-            topGroup: this.groupByIdFunc(topGroup.group),
-            topGroupGamesWin: _topGroupGamesWin,
-            topGroupPercentWin: _topGroupPercentWin.toFixed(1) * 100,
-            topGroupTotaltWin: _topGroupTotaltWin,
+            topGroupWeek: this.groupByIdFunc(topGroup.group),
+            topGroupGamesWinWeek: _topGroupGamesWin,
+            topGroupPercentWinWeek: _topGroupPercentWin.toFixed(1) * 100,
+            topGroupTotaltWinWeek: _topGroupTotaltWin,
           })
         }
       }
@@ -1194,7 +1205,7 @@ class feeds extends Component {
                     fontSize: RFValue(25),
                     fontWeight: '700',
                   }}>
-                  {this.state.topUserTotalPnt}
+                  {this.state.topUserTotalPntWeek}
                 </Text>
               </View>
               <View style={{ flex: 1, alignItems: 'center' }}>
@@ -1229,7 +1240,7 @@ class feeds extends Component {
                     fontSize: RFValue(25),
                     fontWeight: '700',
                   }}>
-                  {this.state.topUserPercentGameWin}
+                  {this.state.topUserPercentGameWinWeek}
                   <Text
                     style={{
                       color: '#edd798',
@@ -1275,7 +1286,7 @@ class feeds extends Component {
                     fontSize: RFValue(25),
                     fontWeight: '700',
                   }}>
-                  {this.state.topUserTotalGameWin}
+                  {this.state.topUserTotalGameWinWeek}
                 </Text>
               </View>
             </View>
@@ -1363,7 +1374,7 @@ class feeds extends Component {
                     fontSize: RFValue(25),
                     fontWeight: '700',
                   }}>
-                  {this.state.topGroupTotaltWin}
+                  {this.state.topGroupTotaltWinWeek}
                 </Text>
               </View>
               <View style={{ flex: 1, alignItems: 'center' }}>
@@ -1398,7 +1409,7 @@ class feeds extends Component {
                     fontSize: RFValue(25),
                     fontWeight: '700',
                   }}>
-                  {this.state.topGroupPercentWin}
+                  {this.state.topGroupPercentWinWeek}
                   <Text
                     style={{
                       color: '#edd798',
@@ -1444,7 +1455,7 @@ class feeds extends Component {
                     fontSize: RFValue(25),
                     fontWeight: '700',
                   }}>
-                  {this.state.topGroupGamesWin}
+                  {this.state.topGroupGamesWinWeek}
                 </Text>
               </View>
             </View>

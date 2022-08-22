@@ -135,7 +135,7 @@ export const getPlayers = (data, token) => {
 }
 export const getAllPlayersByWeek = (week, season, token) => {
   try {
-    const query = `${SERVER}/finalresults?week=${week}&season=${season}`
+    const query = `${SERVER}/betscfbs/players?week=${week}&season=${season}`
 
     return axios.get(query, {
       headers: {
