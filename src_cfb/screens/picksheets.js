@@ -92,7 +92,7 @@ class PickSheet extends Component {
 
     const respGetPlayers = await getAllPlayersPickSheet(group, currentWeek, currentYear, token)
     if (respGetPlayers && respGetPlayers.data) {
-      console.log('respGetPlayers', respGetPlayers.data.length)
+      // console.log('respGetPlayers', respGetPlayers.data.length)
 
       this.setState({
         players: respGetPlayers.data.filter(p => p.user.group === group),
@@ -106,7 +106,7 @@ class PickSheet extends Component {
   getAllGroup = async () => {
     const respGetGroups = await getGroups(this.props.token)
     if (respGetGroups && respGetGroups.data) {
-      console.log('respGetGroups', respGetGroups.data.length)
+      // console.log('respGetGroups', respGetGroups.data.length)
 
       this.setState({ groupsCfgl: respGetGroups.data })
     }
@@ -132,8 +132,8 @@ class PickSheet extends Component {
     let bet = bets.filter(i => i.week == week && i.game && i.game.GameFull && i.game.GameFull.Title === title)
 
     if (bet.length > 0) {
-      console.log(bet.length)
-      console.log(bet[0], title)
+      // console.log(bet.length)
+      // console.log(bet[0], title)
       return `${bet[0].betMethod && bet[0].betMethod.value.toUpperCase()} (${bet[0].betType && bet[0].betType.point})`
     } else {
       return ''
@@ -219,7 +219,7 @@ class PickSheet extends Component {
         betType.value.includes('game 5'))
     ) {
       r = w[0].point > 0 ? 1 : 0
-      console.log(w[0].point)
+      // console.log(w[0].point)
     }
 
     return r
@@ -254,7 +254,7 @@ class PickSheet extends Component {
   }
 
   getGameResultBowl = (bets, title, week) => {
-    console.log(bets.length)
+    // console.log(bets.length)
     let bet = bets.filter(i => i.week == week && i.game && i.game.GameFull && i.game.GameFull.Title === title)
 
     if (bet.length > 0) {
@@ -293,7 +293,13 @@ class PickSheet extends Component {
         // alert(response.data.length)
         // console.log(response.data.map(m => m.game.Title))
         const v = _.uniqBy(response.data.map(m => m.game.Title))
-
+        console.log(
+          JSON.stringify(
+            response.data.map(m => m.game.Title),
+            null,
+            2,
+          ),
+        )
         self.setState({ bowlList: v })
         // if (response && response.data.filter(f => f.method.category === 'bowl').length > 0) {
         //   console.log(response.data)
@@ -1179,20 +1185,21 @@ class PickSheet extends Component {
                           height: 60,
                           alignItems: 'center',
                         }}>
-                        {this.state.bowlList.map((m, i) => {
+                        {this.state.bowlList.sort().map((m, i) => {
                           return (
                             <Text
                               style={{
-                                width: 165,
+                                width: 200,
+
                                 color: '#edd798',
                                 fontFamily: 'Arial',
                                 fontSize: RFValue(12),
                                 fontWeight: '900',
-                                marginRight: 4,
+
                                 // backgroundColor: '#fff',
                                 textAlign: 'center',
                               }}>
-                              {`${m.substring(0, 20)}`}
+                              {`${_.words(m)[0] + ' ' + _.words(m)[1] + ' ' + (_.words(m)[2] || '')}`}
                             </Text>
                           )
                         })}
@@ -1236,17 +1243,14 @@ class PickSheet extends Component {
                                       this._showModal()
                                     })
                                   }}
-                                  style={{ marginRight: 4 }}>
+                                  style={{ width: 200, justifyContent: 'center', alignItems: 'center' }}>
                                   <Text
                                     style={{
-                                      width: 150,
                                       color: this.isGameWinBowl(item.results, m, BOWLWEEK),
                                       fontFamily: 'Arial',
                                       fontSize: RFValue(10),
                                       fontWeight: '600',
-                                      marginLeft: 15,
-
-                                      textAlign: 'center',
+                                      marginLeft: -5,
                                     }}>
                                     {this.gameBowl(item.results, m, BOWLWEEK)}
                                   </Text>
@@ -1867,7 +1871,7 @@ class PickSheet extends Component {
                 week: index + 1,
                 players: [],
               })
-            console.log(this.state.group._id, `${index + 1}`, this.props.currentYear + '', this.props.token)
+            // console.log(this.state.group._id, `${index + 1}`, this.props.currentYear + '', this.props.token)
             this.getAllPlayersAndGroup(
               this.state.group._id,
               `${index + 1}`,

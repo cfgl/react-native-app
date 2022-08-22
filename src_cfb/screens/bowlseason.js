@@ -92,11 +92,17 @@ class BowlSeason extends Component {
 
           let weekGames_ = self.state.weekGames
 
-          self.setState({
-            weekGames: _.concat(weekGames_, games.data)
-              .filter(f => f.Season + '' === self.props.currentYear + '' && f.PointSpread)
-              .sort((a, b) => new Date(a.Day) - new Date(b.Day)),
-          })
+          const list = _.concat(weekGames_, games.data)
+            .filter(f => f.Season + '' === self.props.currentYear + '' && f.PointSpread)
+            .sort((a, b) => new Date(a.Day) - new Date(b.Day))
+          self.setState(
+            {
+              weekGames: _.unionBy(list, 'Title'),
+            },
+            () => {
+              console.log(JSON.stringify(_.unionBy(self.state.weekGames, 'Title').length, null, 2))
+            },
+          )
         })
 
         self.getAll()
@@ -169,7 +175,9 @@ class BowlSeason extends Component {
     data.user = this.props.user._id
     data.gameKey = data.game && data.game.GameID ? data.game.GameID.toString() : ''
 
-    if (data.game.GameID && data.method.value) {
+    const isBet = this.state.betsGame.filter(f => f.gameKey + '' === data.gameKey + '')
+
+    if (data.game.GameID && data.method.value && isBet.length === 0) {
       this.setState({ send: true })
       if (data._id) {
         axios
@@ -346,9 +354,9 @@ class BowlSeason extends Component {
             let game = {}
             const dat = this.state.betsGame.filter(f => f.type && f.type.point === index + 1)[0]
             const dat2 = this.state.bowlGame[index]
-            if (dat || dat2) {
-              console.log(JSON.stringify(dat, null, 2))
-            }
+            // if (dat || dat2) {
+            //   console.log(JSON.stringify(dat, null, 2))
+            // }
 
             game = dat ? dat : {}
             if (dat2 && dat2.game) {
@@ -367,9 +375,11 @@ class BowlSeason extends Component {
                 index={index}
                 selectedBowl={game || {}}
                 getGame={() => {
-                  this.setState({ selected: index, selectedGame: game }, () => {
-                    this._showModal()
-                  })
+                  if (!this.state.send) {
+                    this.setState({ selected: index, selectedGame: game }, () => {
+                      this._showModal()
+                    })
+                  }
                 }}
                 onClear={(id, gameId) => {
                   Alert.alert('Clear Game', 'Do you realy want clear this pick?', [
@@ -389,9 +399,11 @@ class BowlSeason extends Component {
                   ])
                 }}
                 method={() => {
-                  this.setState({ selected: index, selectedGame: game }, () => {
-                    this.showTypeBet()
-                  })
+                  if (!this.state.send) {
+                    this.setState({ selected: index, selectedGame: game }, () => {
+                      this.showTypeBet()
+                    })
+                  }
                 }}
               />
             )
