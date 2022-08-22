@@ -45,7 +45,7 @@ const weekList = [
   'Week 11',
   'Week 12',
   'Week 13',
-  'ChampionShip',
+  'Championship',
   'Bowl Season',
 
   'Cancel',
@@ -138,7 +138,6 @@ class PickSheet extends Component {
     } else {
       return ''
     }
-    return 0
   }
 
   isGameWin = (bets, type, week) => {
@@ -896,7 +895,7 @@ class PickSheet extends Component {
                               <TouchableOpacity
                                 onPress={() => {
                                   this.setState(
-                                    { selected: this.getGameResult(rest, 'game 6', this.state.week) },
+                                    { isred: null, selected: this.getGameResult(rest, 'game 6', this.state.week) },
                                     () => {
                                       this._showModal()
                                     },
