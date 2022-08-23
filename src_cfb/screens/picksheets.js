@@ -47,7 +47,6 @@ const weekList = [
   'Week 13',
   'Championship',
   'Bowl Season',
-
   'Cancel',
 ]
 

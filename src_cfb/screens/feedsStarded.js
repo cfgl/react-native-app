@@ -1146,9 +1146,9 @@ class feeds extends Component {
               }}>
               <Image
                 source={
-                  this.state.topPlayer && this.state.topPlayer.user && this.state.topPlayer.user.avatar
+                  this.state.topPlayerWeek && this.state.topPlayerWeek.user && this.state.topPlayerWeek.user.avatar
                     ? {
-                        uri: this.state.topPlayer.user.avatar,
+                        uri: this.state.topPlayerWeek.user.avatar,
                       }
                     : {
                         uri: 'https://www.cobdoglaps.sa.edu.au/wp-content/uploads/2017/11/placeholder-profile-sq.jpg',
@@ -1169,7 +1169,7 @@ class feeds extends Component {
                 marginTop: 10,
                 marginBottom: 25,
               }}>
-              {this.state.topPlayer && this.state.topPlayer.user ? this.state.topPlayer.user.username : ''}
+              {this.state.topPlayerWeek && this.state.topPlayerWeek.user ? this.state.topPlayerWeek.user.username : ''}
             </Text>
 
             <View style={{ flexDirection: 'row', paddingHorizontal: 50 }}>
@@ -1497,8 +1497,9 @@ class feeds extends Component {
                         fontFamily: 'Monda',
                         fontSize: RFValue(14),
                         fontWeight: '400',
-
-                        marginVertical: 10,
+                        marginTop: 20,
+                        marginBottom: 10,
+                        // marginVertical: 10,
                       }}>
                       {this.groupByIdFunc(grp.group) && this.groupByIdFunc(grp.group).name
                         ? this.groupByIdFunc(grp.group).name
@@ -1518,7 +1519,7 @@ class feeds extends Component {
                             key={index}
                             style={{
                               flexDirection: 'row',
-                              paddingVertical: 10,
+                              paddingVertical: 0,
                               alignItems: 'center',
                               borderBottomColor: 'rgba(255,255,255,0.2)',
                               borderBottomWidth: grp.player.length > 2 && index < 2 ? 1 : 0,

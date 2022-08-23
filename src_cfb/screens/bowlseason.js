@@ -126,12 +126,14 @@ class BowlSeason extends Component {
         // handle success
 
         if (response && response.data) {
-          self.setState(
-            {
-              betsGame: response.data.filter(f => f.method.category === 'bowl'),
-            },
-            () => {},
-          )
+          self.setState({ bowlGame: [] }, () => {
+            self.setState(
+              {
+                betsGame: response.data.filter(f => f.method.category === 'bowl'),
+              },
+              () => {},
+            )
+          })
           console.log('Data has been load')
         } else {
           self.setState({ bowlGame: [] })
@@ -177,7 +179,7 @@ class BowlSeason extends Component {
 
     const isBet = this.state.betsGame.filter(f => f.gameKey + '' === data.gameKey + '')
 
-    if (data.game.GameID && data.method.value && isBet.length === 0) {
+    if (data.game.GameID && data.method.value) {
       this.setState({ send: true })
       if (data._id) {
         axios
@@ -200,31 +202,33 @@ class BowlSeason extends Component {
           })
       } else {
         // alert('create')
-
-        axios
-          .post(`${SERVER}/betscfbs`, data, {
-            headers: {
-              Authorization: `Bearer ${this.props.token}`,
-            },
-          })
-          .then(response => {
-            if (response && response.data && response.data._id) {
-              self.getAll()
-              console.log('has been create')
-            }
-            this.setState({ send: false })
-          })
-          .catch(error => {
-            this.setState({ send: false })
-            // Handle error.
-            console.log('An error occurred:', error)
-          })
+        if (isBet.length === 0) {
+          axios
+            .post(`${SERVER}/betscfbs`, data, {
+              headers: {
+                Authorization: `Bearer ${this.props.token}`,
+              },
+            })
+            .then(response => {
+              if (response && response.data && response.data._id) {
+                self.getAll()
+                console.log('has been create')
+              }
+              this.setState({ send: false })
+            })
+            .catch(error => {
+              this.setState({ send: false })
+              // Handle error.
+              console.log('An error occurred:', error)
+            })
+        }
       }
     }
   }
 
   deletePick = (id, gameId) => {
     let self = this
+    this.setState({ send: true })
 
     axios
       .delete(`${SERVER}/betscfbs/${id}`, {
@@ -240,10 +244,12 @@ class BowlSeason extends Component {
           self.setState({ bowlGame: new_ })
           console.log('has been delete')
         }
+        this.setState({ send: false })
       })
       .catch(error => {
         // Handle error.
         console.log('An error occurred:', error)
+        this.setState({ send: false })
       })
   }
   render() {

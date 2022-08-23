@@ -27,11 +27,11 @@ const weekList = [
   'Week 11',
   'Week 12',
   'Week 13',
-  'Week 14',
-  'Week 15',
+  'Championship',
+  'Bowl Season',
   'Cancel',
 ]
-const confrenceList = ['Conf 1', 'Conf 2', 'Conf 3', 'Conf 4', 'Conf 5', 'Conf 6', 'Cancel']
+
 class Spreads extends Component {
   constructor(props) {
     super(props)

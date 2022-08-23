@@ -53,7 +53,7 @@ export const getPlayerResults = (season, token) => {
     })
   } catch (error) {
     // Handle erros
-    // console.log(error)
+    console.log(error)
   }
 }
 

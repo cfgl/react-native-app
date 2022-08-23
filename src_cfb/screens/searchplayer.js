@@ -73,7 +73,7 @@ class searchplayer extends Component {
                 paddingVertical: 5,
                 paddingHorizontal: 10,
               }}>
-              <Image
+              {/* <Image
                 source={
                   item.avatar && item.avatar.secure_url
                     ? { uri: item.avatar.secure_url }
@@ -87,7 +87,7 @@ class searchplayer extends Component {
                   borderRadius: RFValue(15),
                   backgroundColor: '#fff',
                 }}
-              />
+              /> */}
               <Text
                 style={{
                   color: '#edd798',
