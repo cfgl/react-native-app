@@ -149,11 +149,11 @@ class MyPicks extends Component {
     let list = a
       .filter(f => this.props.currentYear.includes(f.Season + '') && f.Week === CHAMIONSHIPWEEK)
       .filter(f => f.PointSpread !== null && f.OverUnder !== null)
-      // .filter(
-      //   f =>
-      //     f.Status !== 'Final' && //comment for testing
-      //     f.Status === 'Scheduled', //comment for testing
-      // )
+      .filter(
+        f =>
+          f.Status !== 'Final' && //comment for testing
+          f.Status === 'Scheduled', //comment for testing
+      )
       .filter(
         f =>
           con &&
@@ -500,11 +500,11 @@ class MyPicks extends Component {
               {/* favorites games */}
               {this.favoritesF(this.props.favorites)
                 .filter(i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()))
-                // .filter(
-                //   i =>
-                //     f.Status !== 'Final' && //comment for testing
-                //     i.Status === 'Scheduled', //comment for testing
-                // )
+                .filter(
+                  i =>
+                    f.Status !== 'Final' && //comment for testing
+                    i.Status === 'Scheduled', //comment for testing
+                )
                 .filter(f => f.PointSpread !== null && f.OverUnder !== null)
                 .map((item, index) => (
                   <GameItem
@@ -538,7 +538,7 @@ class MyPicks extends Component {
               {/* Games list */}
               {this.merge(data, this.props.favorites)
                 .filter(i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()))
-                // .filter(i => i.Status === 'Scheduled' && f.Status !== 'Final')
+                .filter(i => i.Status === 'Scheduled' && f.Status !== 'Final')
                 .filter(f => f.PointSpread !== null && f.OverUnder !== null)
 
                 .map((item, index) => (

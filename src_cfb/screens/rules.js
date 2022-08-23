@@ -12,7 +12,6 @@ export default class rules extends Component {
             style={{
               height: 60,
               color: '#edd798',
-              fontFamily: 'Monda',
               fontSize: 30,
               fontWeight: '600',
               lineHeight: 35,
@@ -119,14 +118,14 @@ $Lines – Pick an underdog to win the game, and win the points of the spread.\n
                 style={{
                   height: 60,
                   color: '#edd798',
-                  fontFamily: 'Monda',
                   fontSize: 30,
                   fontWeight: '600',
                   lineHeight: 35,
                   alignSelf: 'center',
+                  marginTop: 50,
                   marginTop: 20,
                 }}>
-                {`RULES & SCORING`}
+                {`Rules & Scoring`}
               </Text>
             </View>
           </View>
