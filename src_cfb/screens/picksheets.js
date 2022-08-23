@@ -291,14 +291,20 @@ class PickSheet extends Component {
         // handle success
         // alert(response.data.length)
         // console.log(response.data.map(m => m.game.Title))
-        const v = _.uniqBy(response.data.map(m => m.game.Title))
-        console.log(
-          JSON.stringify(
-            response.data.map(m => m.game.Title),
-            null,
-            2,
-          ),
+        const v = _.uniqBy(
+          response.data.sort((a, b) => new Date(a.game.DateTime) - new Date(b.game.DateTime)).map(m => m.game.Title),
         )
+        // console.log(
+        //   JSON.stringify(
+        //     _.uniqBy(
+        //       response.data
+        //         .sort((a, b) => new Date(a.game.DateTime) - new Date(b.game.DateTime))
+        //         .map(m => m.game.DateTime),
+        //     ),
+        //     null,
+        //     2,
+        //   ),
+        // )
         self.setState({ bowlList: v })
         // if (response && response.data.filter(f => f.method.category === 'bowl').length > 0) {
         //   console.log(response.data)
@@ -1184,7 +1190,7 @@ class PickSheet extends Component {
                           height: 60,
                           alignItems: 'center',
                         }}>
-                        {this.state.bowlList.sort().map((m, i) => {
+                        {this.state.bowlList.map((m, i) => {
                           return (
                             <Text
                               style={{
