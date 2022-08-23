@@ -336,15 +336,12 @@ class Pick extends Component {
               //   JSON.stringify(takeBet.game.Status ? 'OK-' + takeBet.game.Status : 'NOT -' + item.value, null, 2),
               // )
 
-              const gameShowed =
-                takeBet && !takeBet.saved && takeBet.game && takeBet.game.Status && takeBet.game.Status !== 'Scheduled'
+              const gameShowed = takeBet && !takeBet.saved && takeBet.game && takeBet.game.Status
+              //  && takeBet.game.Status !== 'Scheduled'
 
-              const blockParlay =
-                item.value.includes('pick') &&
-                takeBet &&
-                takeBet.game &&
-                takeBet.game.Status &&
-                takeBet.game.Status !== 'Scheduled'
+              const blockParlay = item.value.includes('pick') && takeBet && takeBet.game && takeBet.game.Status
+              // &&
+              // takeBet.game.Status !== 'Scheduled'
 
               if (this.state.off === false && blockParlay === true) {
                 this.setState({ off: true })

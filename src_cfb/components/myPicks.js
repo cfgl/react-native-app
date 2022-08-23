@@ -181,11 +181,11 @@ class MyPicks extends Component {
     let list = a
       .filter(f => this.props.currentYear.includes(f.Season + '') && f.Week === this.props.currentWeek)
       .filter(f => f.PointSpread !== null && f.OverUnder !== null)
-      .filter(
-        f =>
-          f.Status !== 'Final' && //comment for testing
-          f.Status === 'Scheduled', //comment for testing
-      )
+      // .filter(
+      //   f =>
+      //     f.Status !== 'Final' && //comment for testing
+      //     f.Status === 'Scheduled', //comment for testing
+      // )
       .filter(
         f =>
           con &&
@@ -508,12 +508,12 @@ class MyPicks extends Component {
               {/* <Text> {this.props.favorites.length}</Text> */}
               {/* favorites games */}
               {this.favoritesF(this.props.favorites)
-                .filter(
-                  i =>
-                    JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()) &&
-                    f.Status !== 'Final' && //comment for testing
-                    i.Status === 'Scheduled', //comment for testing
-                )
+                .filter(i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()))
+                // .filter(
+                //   i =>
+                //     f.Status !== 'Final' && //comment for testing
+                //     i.Status === 'Scheduled', //comment for testing
+                // )
                 .filter(f => f.PointSpread !== null && f.OverUnder !== null)
                 .map((item, index) => (
                   <GameItem
@@ -558,12 +558,11 @@ class MyPicks extends Component {
               <View style={{ height: 1, width: '100%', backgroundColor: jaune }} />
               {/* Games list */}
               {this.merge(data, this.props.favorites)
-                .filter(
-                  i =>
-                    JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()) &&
-                    i.Status !== 'Final' && //comment for testing
-                    i.Status === 'Scheduled', //comment for testing
-                )
+                .filter(i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()))
+                // .filter(
+                //   i => i.Status !== 'Final' && //comment for testing
+                //     i.Status === 'Scheduled', //comment for testing
+                // )
                 .filter(f => f.PointSpread !== null && f.OverUnder !== null)
 
                 .map((item, index) => (
