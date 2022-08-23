@@ -47,7 +47,7 @@ class Notification extends Component {
               fontSize: RFValue(20),
               fontWeight: '700',
             }}>
-            {'CFGL V1.1'}
+            {'CFGL 2.0 BETA'}
           </Text>
 
           <Text

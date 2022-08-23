@@ -356,9 +356,12 @@ class Pick extends Component {
             const gameShowed =
               takeBet && !takeBet.saved && takeBet.game && takeBet.game.Status && takeBet.game.Status !== 'Scheduled'
 
-            const blockParlay = item.value.includes('game') && takeBet && takeBet.game && takeBet.game.Status
-            // &&
-            // takeBet.game.Status !== 'Scheduled'
+            const blockParlay =
+              item.value.includes('game') &&
+              takeBet &&
+              takeBet.game &&
+              takeBet.game.Status &&
+              takeBet.game.Status !== 'Scheduled'
 
             // console.log(blockParlay)
 

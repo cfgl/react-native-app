@@ -181,10 +181,11 @@ class MyPicks extends Component {
     let list = a
       .filter(f => this.props.currentYear.includes(f.Season + '') && f.Week === this.props.currentWeek)
       .filter(
-        f => f.PointSpread !== null && f.OverUnder !== null,
-        //  &&
-        // f.Status !== 'Final' && //comment for testing
-        // f.Status === 'Scheduled', //comment for testing
+        f =>
+          f.PointSpread !== null &&
+          f.OverUnder !== null &&
+          f.Status !== 'Final' && //comment for testing
+          f.Status === 'Scheduled', //comment for testing
       )
       .filter(
         f =>
@@ -509,10 +510,10 @@ class MyPicks extends Component {
               {/* favorites games */}
               {this.favoritesF(this.props.favorites)
                 .filter(
-                  i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()),
-                  // &&
-                  // f.Status !== 'Final' && //comment for testing
-                  // i.Status === 'Scheduled', //comment for testing
+                  i =>
+                    JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()) &&
+                    f.Status !== 'Final' && //comment for testing
+                    i.Status === 'Scheduled', //comment for testing
                 )
                 .filter(f => f.PointSpread !== null && f.OverUnder !== null)
                 .map((item, index) => (
@@ -559,10 +560,10 @@ class MyPicks extends Component {
               {/* Games list */}
               {this.merge(data, this.props.favorites)
                 .filter(
-                  i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()),
-                  //  &&
-                  // i.Status !== 'Final' && //comment for testing
-                  // i.Status === 'Scheduled', //comment for testing
+                  i =>
+                    JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()) &&
+                    i.Status !== 'Final' && //comment for testing
+                    i.Status === 'Scheduled', //comment for testing
                 )
                 .filter(f => f.PointSpread !== null && f.OverUnder !== null)
 
