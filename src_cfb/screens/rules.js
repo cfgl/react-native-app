@@ -106,22 +106,27 @@ $Lines – Pick an underdog to win the game, and win the points of the spread.\n
           </View>
           <View style={{ alignItems: 'center', marginBottom: 0 }}>
             <View
-              style={{
-                width: '90%',
-                height: 38,
-                marginTop: 40,
-                backgroundColor: '#edd798',
-                justifyContent: 'center',
-              }}>
+              style={
+                {
+                  // width: '90%',
+                  // height: 38,
+                  // marginTop: 40,
+                  // backgroundColor: '#edd798',
+                  // justifyContent: 'center',
+                }
+              }>
               <Text
                 style={{
-                  color: '#191919',
-                  fontFamily: 'Arial',
-                  fontSize: RFValue(12),
-                  fontWeight: '700',
-                  marginLeft: 20,
+                  height: 60,
+                  color: '#edd798',
+                  fontFamily: 'Monda',
+                  fontSize: 30,
+                  fontWeight: '600',
+                  lineHeight: 35,
+                  alignSelf: 'center',
+                  marginTop: 20,
                 }}>
-                {`RULES & SCORING:\nEach week you select six games.`}
+                {`RULES & SCORING`}
               </Text>
             </View>
           </View>
@@ -130,7 +135,7 @@ $Lines – Pick an underdog to win the game, and win the points of the spread.\n
               style={{
                 width: '90%',
                 height: 38,
-                marginTop: 40,
+                marginTop: 10,
                 backgroundColor: '#edd798',
                 justifyContent: 'center',
               }}>
@@ -224,21 +229,18 @@ $Lines – Pick an underdog to win the game, and win the points of the spread.\n
                     fontWeight: '400',
                   }}>
                   {`
-
-WEEK 1- B1G    
-WEEK 2- CUSA
-WEEK 3- BIG XII 
-WEEK 4- MAC
-WEEK 5- SUNBELT 
-WEEK 6- AAC
-WEEK 7- MTN WEST
-WEEK 8- PAC-12
-WEEK 9-ACC 
-WEEK 10- SEC
-WEEK 11- POWER CONF 
-WEEK 12- POWER CONF
-WEEK 13- POWER CONF
-WEEK 14- CHAMPIONSHIP WEEK* 
+Week 1 - CUSA
+Week 2 - MTN WEST
+Week 3 - AAC
+Week 4 - PAC-12
+Week 5 - Sunbelt
+Week 6 - ACC
+Week 7 - MAC
+Week 8 - Big 12
+Week 9 - Big Ten
+Week 10 - SEC
+Week 11, 12, 13 - Power Conf
+Week 14 - Championship week
                 `}
                 </Text>
               </View>
