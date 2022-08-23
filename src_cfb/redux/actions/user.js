@@ -129,9 +129,10 @@ export const updateUserInfo = (data, id, token) => {
           data: { token: token, user: response.data },
         })
 
-        if (response.data && response.data && response.data.email) {
-          // alert('Succesful updated')
-          // dispatch(setUserStatus('SUCCESSED_USER_UPDATE'))
+        var size = Object.keys(data).length
+
+        if (response.data && data.conferenceCFB && size === 1) {
+          alert('Conference Successful update')
         }
       })
       .catch(error => {

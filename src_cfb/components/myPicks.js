@@ -180,10 +180,9 @@ class MyPicks extends Component {
 
     let list = a
       .filter(f => this.props.currentYear.includes(f.Season + '') && f.Week === this.props.currentWeek)
+      .filter(f => f.PointSpread !== null && f.OverUnder !== null)
       .filter(
         f =>
-          f.PointSpread !== null &&
-          f.OverUnder !== null &&
           f.Status !== 'Final' && //comment for testing
           f.Status === 'Scheduled', //comment for testing
       )

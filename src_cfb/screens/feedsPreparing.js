@@ -60,6 +60,10 @@ class feeds extends Component {
 
   componentDidMount() {
     this._retrieveData()
+
+    // if (this.props.user.conferenceCFB) {
+    //   alert(this.props.user.conferenceCFB)
+    // }
   }
 
   componentDidUpdate(prevProps) {}

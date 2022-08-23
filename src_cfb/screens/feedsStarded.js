@@ -679,6 +679,113 @@ class feeds extends Component {
               </Text>
             </View>
           </View>
+          {/* ////////////////////////////////////////////////////////////////////////////// */}
+          {this.props.user && (!this.props.user.conferenceCFB || this.props.user.conferenceCFB === '') && (
+            <View
+              style={{
+                backgroundColor: '#191919',
+                paddingVertical: 47,
+                paddingHorizontal: 20,
+                width: '95%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                alignSelf: 'center',
+                marginBottom: 20,
+              }}>
+              <Text
+                style={{
+                  color: '#edd798',
+                  fontFamily: 'Monda',
+                  fontSize: 35,
+                  fontWeight: '400',
+                }}>
+                {'It’s Game Time.'}
+              </Text>
+
+              <Text
+                style={{
+                  color: '#edd798',
+                  fontFamily: 'Monda',
+                  fontSize: 16,
+                  fontWeight: '700',
+                  lineHeight: 28,
+                  marginTop: 10,
+                }}>
+                {'PICK YOUR POWER CONFERENCE'}
+              </Text>
+              <Text
+                style={{
+                  color: '#edd798',
+                  fontFamily: 'Monda',
+                  fontSize: 14,
+                  fontWeight: '400',
+                  lineHeight: 24,
+                  lineHeight: 30,
+                  marginTop: 10,
+                  textAlign: 'center',
+                  marginTop: 20,
+                }}>
+                {
+                  'The regular season is starting soon. That means it’s time for you to select your Power Conference. This selection cannot be changed once done Pick Wisely.'
+                }
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  this.selectedConference.show()
+                }}
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+
+                  width: '100%',
+                  backgroundColor: gris,
+                  alignItems: 'center',
+                  paddingHorizontal: 20,
+                  marginTop: 30,
+                  paddingVertical: 10,
+                }}>
+                <Text
+                  style={{
+                    color: jaune,
+                    fontSize: RFValue(15),
+                    fontFamily: 'monda',
+                    fontWeight: '400',
+                    width: '90%',
+                  }}>
+                  {this.state.conferenceCFB ? this.state.conferenceCFB : 'Select your Power Conference'}
+                </Text>
+                <Ionicons name={'ios-arrow-down'} color={jaune} size={RFValue(20)} />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.updateUserInfo(
+                    { conferenceCFB: this.state.conferenceCFB },
+                    this.props.user.id,
+                    this.props.token,
+                  )
+                }}
+                style={{
+                  height: 50,
+                  width: '50%',
+                  backgroundColor: jaune,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingHorizontal: 20,
+                  marginTop: 30,
+                }}>
+                <Text
+                  style={{
+                    color: '#191919',
+                    fontFamily: 'monda',
+                    fontSize: 19,
+                    fontWeight: '700',
+                  }}>
+                  {'SUBMIT'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           {popular && popular.morning && popular.morning.game ? (
             <View
@@ -991,111 +1098,6 @@ class feeds extends Component {
               </Text>
             </View>
           ) : null}
-
-          {/* ////////////////////////////////////////////////////////////////////////////// */}
-          {this.props.user && (!this.props.user.conferenceCFB || this.props.user.conferenceCFB === '') && (
-            <View
-              style={{
-                backgroundColor: '#191919',
-                paddingVertical: 47,
-                paddingHorizontal: 20,
-                width: '95%',
-                alignItems: 'center',
-                justifyContent: 'center',
-                alignSelf: 'center',
-              }}>
-              <Text
-                style={{
-                  color: '#edd798',
-                  fontFamily: 'Monda',
-                  fontSize: RFValue(35),
-                  fontWeight: '400',
-                }}>
-                {'It’s Game Time.'}
-              </Text>
-
-              <Text
-                style={{
-                  color: '#edd798',
-                  fontFamily: 'Monda',
-                  fontSize: RFValue(16),
-                  fontWeight: '700',
-
-                  marginTop: 10,
-                }}>
-                {'PICK YOUR POWER CONFERENCE'}
-              </Text>
-              <Text
-                style={{
-                  color: '#edd798',
-                  fontFamily: 'monda',
-                  fontSize: 17,
-                  fontWeight: '400',
-                  lineHeight: 22,
-                  textAlign: 'center',
-                  marginTop: 20,
-                }}>
-                {
-                  'The regular season is starting next week. That means it’s time for you to select your Power Conference. This selection cannot be changed once done Pick Wisely.'
-                }
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  this.selectedConference.show()
-                }}
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-
-                  width: '100%',
-                  backgroundColor: gris,
-                  alignItems: 'center',
-                  paddingHorizontal: 20,
-                  marginTop: 30,
-                  paddingVertical: 10,
-                }}>
-                <Text
-                  style={{
-                    color: jaune,
-                    fontSize: RFValue(15),
-                    fontFamily: 'monda',
-                    fontWeight: '400',
-                    width: '90%',
-                  }}>
-                  {this.state.conferenceCFB ? this.state.conferenceCFB : 'Select your Power Conference'}
-                </Text>
-                <Ionicons name={'ios-arrow-down'} color={jaune} size={RFValue(20)} />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  this.props.updateUserInfo(
-                    { conferenceCFB: this.state.conferenceCFB },
-                    this.props.user.id,
-                    this.props.token,
-                  )
-                }}
-                style={{
-                  height: RFValue(50),
-                  width: '50%',
-                  backgroundColor: jaune,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  paddingHorizontal: 20,
-                  marginTop: 30,
-                }}>
-                <Text
-                  style={{
-                    color: '#191919',
-                    fontFamily: 'monda',
-                    fontSize: RFValue(20),
-                    fontWeight: '700',
-                  }}>
-                  {'SUBMIT'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
 
           {/* PLAYER OF THE WEEK////////////////////////////////////////////////////////////////////////////// */}
 
