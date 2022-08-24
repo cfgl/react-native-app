@@ -60,7 +60,7 @@ class Notification extends Component {
               width: RFValue(300),
               color: '#edd798',
               fontFamily: 'Monda',
-              fontSize: RFValue(17),
+              fontSize: 17,
               fontWeight: '400',
 
               textAlign: 'center',

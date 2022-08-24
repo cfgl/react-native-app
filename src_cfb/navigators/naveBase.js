@@ -90,7 +90,7 @@ function MyPicks({ navigation }) {
         tabBarOptions={{
           scrollEnabled: true,
           labelStyle: {
-            fontSize: RFValue(10),
+            fontSize: 10,
             color: jaune,
             fontFamily: 'Monda',
           },
@@ -225,7 +225,7 @@ function MyGroup({ navigation }) {
         tabBarOptions={{
           scrollEnabled: true,
           labelStyle: {
-            fontSize: RFValue(10),
+            fontSize: 10,
             color: jaune,
           },
           tabStyle: {

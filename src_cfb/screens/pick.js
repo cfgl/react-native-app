@@ -130,7 +130,7 @@ class Pick extends Component {
         console.log(JSON.stringify(response.data))
       })
       .catch(function (error) {
-        alert('bad:')
+        // alert('bad:')
 
         // handle error
         console.log(JSON.stringify(error))
@@ -148,6 +148,18 @@ class Pick extends Component {
 
         return m
       })
+
+      // alert(
+      //   JSON.stringify(
+      //     datas.filter(
+      //       f =>
+      //         (f.AwayTeamInfo && f.AwayTeamInfo.Conference && f.AwayTeamInfo.Conference.includes('MEC')) ||
+      //         (f.HomeTeamInfo && f.HomeTeamInfo.Conference && f.HomeTeamInfo.Conference.includes('MEC')),
+      //     ).length,
+      //     null,
+      //     2,
+      //   ),
+      // )
 
       datas = datas.sort(function (a, b) {
         return new Date(a.Day) - new Date(b.Day)
@@ -324,419 +336,441 @@ class Pick extends Component {
               alignItems: 'center',
               paddingTop: 20,
             }}>
-            {this.state.types.map((item, index) => {
-              const takeBet = this.hasTakeBet(
-                this.state.bets,
-                this.props.currentWeek,
-                this.props.currentYear,
-                item.value,
-              )
+            {this.props.user.conferenceCFB ? (
+              <View>
+                {this.state.types.map((item, index) => {
+                  const takeBet = this.hasTakeBet(
+                    this.state.bets,
+                    this.props.currentWeek,
+                    this.props.currentYear,
+                    item.value,
+                  )
 
-              // console.log(
-              //   JSON.stringify(takeBet.game.Status ? 'OK-' + takeBet.game.Status : 'NOT -' + item.value, null, 2),
-              // )
+                  // console.log(
+                  //   JSON.stringify(takeBet.game.Status ? 'OK-' + takeBet.game.Status : 'NOT -' + item.value, null, 2),
+                  // )
 
-              const gameShowed =
-                takeBet && !takeBet.saved && takeBet.game && takeBet.game.Status && takeBet.game.Status !== 'Scheduled'
+                  const gameShowed =
+                    takeBet &&
+                    !takeBet.saved &&
+                    takeBet.game &&
+                    takeBet.game.Status &&
+                    takeBet.game.Status !== 'Scheduled'
 
-              const blockParlay =
-                item.value.includes('pick') &&
-                takeBet &&
-                takeBet.game &&
-                takeBet.game.Status &&
-                takeBet.game.Status !== 'Scheduled'
+                  const blockParlay =
+                    item.value.includes('pick') &&
+                    takeBet &&
+                    takeBet.game &&
+                    takeBet.game.Status &&
+                    takeBet.game.Status !== 'Scheduled'
 
-              if (this.state.off === false && blockParlay === true) {
-                this.setState({ off: true })
-              }
+                  if (this.state.off === false && blockParlay === true) {
+                    this.setState({ off: true })
+                  }
 
-              if (gameShowed) {
-                //Verify if game is in parlay
-                const parlay =
-                  item.value.includes('pick') &&
-                  this.state.allMyParlays &&
-                  this.state.allMyParlays.filter(
-                    i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
-                  ).length === 1
-                // console.log('on MyGames ' + index)
-                return (
-                  <View key={index}>
-                    <MyGames
-                      live={true}
-                      game={takeBet.game}
-                      parlay={parlay}
-                      type={item.label}
-                      method={takeBet.method}
-                    />
-                    {item.value === 'pick3' && this.state.off === true && (
-                      <View
-                        style={{
-                          alignSelf: 'center',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          marginTop: 20,
-                          marginBottom: 30,
-                        }}>
-                        <Switch value={this.state.isSwitchOn} color={jaune} disabled />
-                        <View>
-                          <Text style={{ color: jaune, marginLeft: 10, fontSize: RFValue(12) }}>PARLAY FREE PICKS</Text>
-                        </View>
-
-                        <PopoverController>
-                          {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
-                            <React.Fragment>
-                              <Ionicons
-                                name="ios-information-circle-outline"
-                                size={24}
-                                style={{ marginLeft: 10 }}
-                                color={jaune}
-                                ref={setPopoverAnchor}
-                                onPress={openPopover}
-                              />
-                              <Popover
-                                placement="top"
-                                contentStyle={styles.content}
-                                arrowStyle={styles.arrow}
-                                backgroundStyle={styles.background}
-                                visible={popoverVisible}
-                                onClose={closePopover}
-                                fromRect={popoverAnchorRect}
-                                supportedOrientations={['portrait', 'landscape']}>
-                                <Text style={{ width: 140, fontSize: 10 }}>
-                                  Group free games together to win bonus points. Must win all games in parlay
-                                </Text>
-                              </Popover>
-                            </React.Fragment>
-                          )}
-                        </PopoverController>
-                      </View>
-                    )}
-
-                    {item.value === 'pick3' && this.state.off === false && (
-                      <TouchableOpacity
-                        style={{
-                          alignSelf: 'center',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          marginTop: 10,
-                          marginBottom: 20,
-                        }}>
-                        <Switch
-                          value={this.state.isSwitchOn && this.props.seasonStatus !== 'PREPARING'}
-                          color={jaune}
-                          style={{}}
-                          onValueChange={async () => {
-                            if (!this.state.off && this.props.seasonStatus !== 'PREPARING') {
-                              this.setState({ isSwitchOn: !this.state.isSwitchOn }, async () => {
-                                let ply = this.state.allMyParlays.filter(
-                                  i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
-                                )
-                                if (this.state.allMyParlays && ply.length === 1) {
-                                  const respDeleteParlay = await deleteParlay(ply[0]._id, this.props.token)
-                                  if (respDeleteParlay) {
-                                    // console.log('respMyParlays', JSON.stringify(respDeleteParlay.data, null, 2))
-                                    this.gamesAndBets()
-                                  }
-                                } else {
-                                  const respSaveParlay = await saveParlay(
-                                    {
-                                      week: this.props.currentWeek,
-                                      season: this.props.currentYear,
-                                      user: this.props.user._id,
-                                      uniqueId: `${this.props.user._id}-${this.props.currentWeek}`,
-                                    },
-                                    this.props.token,
-                                  )
-                                  if (respSaveParlay) {
-                                    // console.log('respSaveParlay', JSON.stringify(respSaveParlay.data, null, 2))
-                                    this.gamesAndBets()
-                                  }
-                                }
-                              })
-                            }
-                          }}
+                  if (gameShowed) {
+                    //Verify if game is in parlay
+                    const parlay =
+                      item.value.includes('pick') &&
+                      this.state.allMyParlays &&
+                      this.state.allMyParlays.filter(
+                        i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
+                      ).length === 1
+                    // console.log('on MyGames ' + index)
+                    return (
+                      <View key={index}>
+                        <MyGames
+                          live={true}
+                          game={takeBet.game}
+                          parlay={parlay}
+                          type={item.label}
+                          method={takeBet.method}
                         />
-                        <TouchableOpacity
-                          onPress={() => {
-                            if (!this.state.off && this.props.seasonStatus !== 'PREPARING') {
-                              this.setState({ isSwitchOn: !this.state.isSwitchOn }, async () => {
-                                let ply = this.state.allMyParlays.filter(
-                                  i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
-                                )
-                                if (this.state.allMyParlays && ply.length === 1) {
-                                  const respDeleteParlay = await deleteParlay(ply[0]._id, this.props.token)
-                                  if (respDeleteParlay) {
-                                    // console.log('respMyParlays', JSON.stringify(respDeleteParlay.data, null, 2))
-                                    this.gamesAndBets()
-                                  }
-                                } else {
-                                  const respSaveParlay = await saveParlay(
-                                    {
-                                      week: this.props.currentWeek,
-                                      season: this.props.currentYear,
-                                      user: this.props.user._id,
-                                      uniqueId: `${this.props.user._id}-${this.props.currentWeek}`,
-                                    },
-                                    this.props.token,
-                                  )
-                                  if (respSaveParlay) {
-                                    // console.log('respSaveParlay', JSON.stringify(respSaveParlay.data, null, 2))
-                                    this.gamesAndBets()
-                                  }
+                        {item.value === 'pick3' && this.state.off === true && (
+                          <View
+                            style={{
+                              alignSelf: 'center',
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              marginTop: 20,
+                              marginBottom: 30,
+                            }}>
+                            <Switch value={this.state.isSwitchOn} color={jaune} disabled />
+                            <View>
+                              <Text style={{ color: jaune, marginLeft: 10, fontSize: RFValue(12) }}>
+                                PARLAY FREE PICKS
+                              </Text>
+                            </View>
+
+                            <PopoverController>
+                              {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
+                                <React.Fragment>
+                                  <Ionicons
+                                    name="ios-information-circle-outline"
+                                    size={24}
+                                    style={{ marginLeft: 10 }}
+                                    color={jaune}
+                                    ref={setPopoverAnchor}
+                                    onPress={openPopover}
+                                  />
+                                  <Popover
+                                    placement="top"
+                                    contentStyle={styles.content}
+                                    arrowStyle={styles.arrow}
+                                    backgroundStyle={styles.background}
+                                    visible={popoverVisible}
+                                    onClose={closePopover}
+                                    fromRect={popoverAnchorRect}
+                                    supportedOrientations={['portrait', 'landscape']}>
+                                    <Text style={{ width: 140, fontSize: 10 }}>
+                                      Group free games together to win bonus points. Must win all games in parlay
+                                    </Text>
+                                  </Popover>
+                                </React.Fragment>
+                              )}
+                            </PopoverController>
+                          </View>
+                        )}
+
+                        {item.value === 'pick3' && this.state.off === false && (
+                          <TouchableOpacity
+                            style={{
+                              alignSelf: 'center',
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              marginTop: 10,
+                              marginBottom: 20,
+                            }}>
+                            <Switch
+                              value={this.state.isSwitchOn && this.props.seasonStatus !== 'PREPARING'}
+                              color={jaune}
+                              style={{}}
+                              onValueChange={async () => {
+                                if (!this.state.off && this.props.seasonStatus !== 'PREPARING') {
+                                  this.setState({ isSwitchOn: !this.state.isSwitchOn }, async () => {
+                                    let ply = this.state.allMyParlays.filter(
+                                      i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
+                                    )
+                                    if (this.state.allMyParlays && ply.length === 1) {
+                                      const respDeleteParlay = await deleteParlay(ply[0]._id, this.props.token)
+                                      if (respDeleteParlay) {
+                                        // console.log('respMyParlays', JSON.stringify(respDeleteParlay.data, null, 2))
+                                        this.gamesAndBets()
+                                      }
+                                    } else {
+                                      const respSaveParlay = await saveParlay(
+                                        {
+                                          week: this.props.currentWeek,
+                                          season: this.props.currentYear,
+                                          user: this.props.user._id,
+                                          uniqueId: `${this.props.user._id}-${this.props.currentWeek}`,
+                                        },
+                                        this.props.token,
+                                      )
+                                      if (respSaveParlay) {
+                                        // console.log('respSaveParlay', JSON.stringify(respSaveParlay.data, null, 2))
+                                        this.gamesAndBets()
+                                      }
+                                    }
+                                  })
                                 }
-                              })
-                            }
-                          }}>
-                          <Text style={{ color: jaune, fontSize: RFValue(12), marginLeft: 10, fontSize: RFValue(12) }}>
-                            PARLAY FREE PICKS
-                          </Text>
-                        </TouchableOpacity>
-                        <PopoverController>
-                          {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
-                            <React.Fragment>
-                              <Ionicons
-                                name="ios-information-circle-outline"
-                                size={24}
-                                style={{ marginLeft: 10 }}
-                                color={jaune}
-                                ref={setPopoverAnchor}
-                                onPress={openPopover}
-                              />
-                              <Popover
-                                placement="top"
-                                contentStyle={styles.content}
-                                arrowStyle={styles.arrow}
-                                backgroundStyle={styles.background}
-                                visible={popoverVisible}
-                                onClose={closePopover}
-                                fromRect={popoverAnchorRect}
-                                supportedOrientations={['portrait', 'landscape']}>
-                                <Text style={{ width: 140, fontSize: 10 }}>
-                                  Group free games together to win bonus points. Must win all free games to win parlay
-                                </Text>
-                              </Popover>
-                            </React.Fragment>
-                          )}
-                        </PopoverController>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                )
-              } else {
-                return (
-                  <View key={index}>
-                    <MyPicks
-                      index={index}
-                      name={item.label}
-                      timeOver={this.state.weekGames.length === 0 || this.state.sending === true ? true : false}
-                      favorites={
-                        this.props.user && this.props.user.favoritesCFB
-                          ? this.props.user.favoritesCFB.filter(
-                              i => i.Week === this.props.currentWeek && this.props.currentYear.includes(i.Season + ''),
-                            )
-                          : []
-                      }
-                      hasTakeBet={takeBet}
-                      //
-                      off={this.state.off}
-                      game={takeBet.game}
-                      method={takeBet.method}
-                      quickpick={takeBet.quickpick}
-                      locked={takeBet.locked}
-                      //
-                      data={this.state.weekGames}
-                      onChoose={async data => {
-                        data.type = item
-                        data.week = `${this.props.currentWeek}`
-                        data.season = `${this.props.currentYear}`
-                        data.quickpick = data.quick
-                        data.user = this.props.user._id
-                        data.gameKey = data.game && data.game.GameID ? data.game.GameID.toString() : ''
-
-                        this.setState({ newBet: data })
-
-                        if (data.game.GameID && data.method.value) {
-                          let be = this.hasTakeBet(
-                            this.state.bets,
-                            this.props.currentWeek,
-                            this.props.currentYear,
-                            item.value,
-                          )
-
-                          if (be.game && be.game.HomeTeam && be.game.AwayTeam) {
-                            this.setState({ sending: true })
-
-                            const respUpdateBet = await updateBet(be._id, data, this.props.token)
-
-                            if (respUpdateBet && respUpdateBet.data._id) {
-                              this.setState({ sending: false })
-                              this.gamesAndBets()
-                            }
-                          } else {
-                            console.log('create')
-                            this.setState({ sending: true })
-                            //console.log(JSON.stringify(data,null,2));
-                            setTimeout(() => {
-                              this.setState({ sending: false })
-                              this.props.saveBet(data, this.props.token)
-                            }, 3000)
+                              }}
+                            />
+                            <TouchableOpacity
+                              onPress={() => {
+                                if (!this.state.off && this.props.seasonStatus !== 'PREPARING') {
+                                  this.setState({ isSwitchOn: !this.state.isSwitchOn }, async () => {
+                                    let ply = this.state.allMyParlays.filter(
+                                      i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
+                                    )
+                                    if (this.state.allMyParlays && ply.length === 1) {
+                                      const respDeleteParlay = await deleteParlay(ply[0]._id, this.props.token)
+                                      if (respDeleteParlay) {
+                                        // console.log('respMyParlays', JSON.stringify(respDeleteParlay.data, null, 2))
+                                        this.gamesAndBets()
+                                      }
+                                    } else {
+                                      const respSaveParlay = await saveParlay(
+                                        {
+                                          week: this.props.currentWeek,
+                                          season: this.props.currentYear,
+                                          user: this.props.user._id,
+                                          uniqueId: `${this.props.user._id}-${this.props.currentWeek}`,
+                                        },
+                                        this.props.token,
+                                      )
+                                      if (respSaveParlay) {
+                                        // console.log('respSaveParlay', JSON.stringify(respSaveParlay.data, null, 2))
+                                        this.gamesAndBets()
+                                      }
+                                    }
+                                  })
+                                }
+                              }}>
+                              <Text
+                                style={{ color: jaune, fontSize: RFValue(12), marginLeft: 10, fontSize: RFValue(12) }}>
+                                PARLAY FREE PICKS
+                              </Text>
+                            </TouchableOpacity>
+                            <PopoverController>
+                              {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
+                                <React.Fragment>
+                                  <Ionicons
+                                    name="ios-information-circle-outline"
+                                    size={24}
+                                    style={{ marginLeft: 10 }}
+                                    color={jaune}
+                                    ref={setPopoverAnchor}
+                                    onPress={openPopover}
+                                  />
+                                  <Popover
+                                    placement="top"
+                                    contentStyle={styles.content}
+                                    arrowStyle={styles.arrow}
+                                    backgroundStyle={styles.background}
+                                    visible={popoverVisible}
+                                    onClose={closePopover}
+                                    fromRect={popoverAnchorRect}
+                                    supportedOrientations={['portrait', 'landscape']}>
+                                    <Text style={{ width: 140, fontSize: 10 }}>
+                                      Group free games together to win bonus points. Must win all free games to win
+                                      parlay
+                                    </Text>
+                                  </Popover>
+                                </React.Fragment>
+                              )}
+                            </PopoverController>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    )
+                  } else {
+                    return (
+                      <View key={index}>
+                        <MyPicks
+                          index={index}
+                          name={item.label}
+                          timeOver={this.state.weekGames.length === 0 || this.state.sending === true ? true : false}
+                          favorites={
+                            this.props.user && this.props.user.favoritesCFB
+                              ? this.props.user.favoritesCFB.filter(
+                                  i =>
+                                    i.Week === this.props.currentWeek && this.props.currentYear.includes(i.Season + ''),
+                                )
+                              : []
                           }
-                        }
-                      }}
-                    />
-                    {item.value === 'pick3' && this.state.off === false && (
-                      <TouchableOpacity
-                        style={{
-                          alignSelf: 'center',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          marginTop: 10,
-                          marginBottom: 20,
-                        }}>
-                        <Switch
-                          value={this.state.isSwitchOn}
-                          color={jaune}
-                          style={{}}
-                          onValueChange={() => {
-                            if (!this.state.off) {
-                              this.setState({ isSwitchOn: !this.state.isSwitchOn }, async () => {
-                                let ply = this.state.allMyParlays.filter(
-                                  i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
-                                )
-                                if (this.state.allMyParlays && ply.length === 1) {
-                                  const respDeleteParlay = await deleteParlay(ply[0]._id, this.props.token)
-                                  if (respDeleteParlay) {
-                                    // console.log('respMyParlays', JSON.stringify(respDeleteParlay.data, null, 2))
-                                    this.gamesAndBets()
-                                  }
-                                } else {
-                                  const respSaveParlay = await saveParlay(
-                                    {
-                                      week: this.props.currentWeek,
-                                      season: this.props.currentYear,
-                                      user: this.props.user._id,
-                                      uniqueId: `${this.props.user._id}-${this.props.currentWeek}`,
-                                    },
-                                    this.props.token,
-                                  )
-                                  if (respSaveParlay) {
-                                    // console.log('respSaveParlay', JSON.stringify(respSaveParlay.data, null, 2))
-                                    this.gamesAndBets()
-                                  }
+                          hasTakeBet={takeBet}
+                          //
+                          off={this.state.off}
+                          game={takeBet.game}
+                          method={takeBet.method}
+                          quickpick={takeBet.quickpick}
+                          locked={takeBet.locked}
+                          //
+                          data={this.state.weekGames}
+                          onChoose={async data => {
+                            data.type = item
+                            data.week = `${this.props.currentWeek}`
+                            data.season = `${this.props.currentYear}`
+                            data.quickpick = data.quick
+                            data.user = this.props.user._id
+                            data.gameKey = data.game && data.game.GameID ? data.game.GameID.toString() : ''
+
+                            this.setState({ newBet: data })
+
+                            if (data.game.GameID && data.method.value) {
+                              let be = this.hasTakeBet(
+                                this.state.bets,
+                                this.props.currentWeek,
+                                this.props.currentYear,
+                                item.value,
+                              )
+
+                              if (be.game && be.game.HomeTeam && be.game.AwayTeam) {
+                                this.setState({ sending: true })
+
+                                const respUpdateBet = await updateBet(be._id, data, this.props.token)
+
+                                if (respUpdateBet && respUpdateBet.data._id) {
+                                  this.setState({ sending: false })
+                                  this.gamesAndBets()
                                 }
-                              })
+                              } else {
+                                console.log('create')
+                                this.setState({ sending: true })
+                                //console.log(JSON.stringify(data,null,2));
+                                setTimeout(() => {
+                                  this.setState({ sending: false })
+                                  this.props.saveBet(data, this.props.token)
+                                }, 3000)
+                              }
                             }
                           }}
                         />
-                        <TouchableOpacity
-                          onPress={() => {
-                            if (!this.state.off && this.props.seasonStatus !== 'PREPARING') {
-                              this.setState({ isSwitchOn: !this.state.isSwitchOn }, async () => {
-                                let ply = this.state.allMyParlays.filter(
-                                  i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
-                                )
-                                if (this.state.allMyParlays && ply.length === 1) {
-                                  const respDeleteParlay = await deleteParlay(ply[0]._id, this.props.token)
-                                  if (respDeleteParlay) {
-                                    // console.log('respMyParlays', JSON.stringify(respDeleteParlay.data, null, 2))
-                                    this.gamesAndBets()
-                                  }
-                                } else {
-                                  const respSaveParlay = await saveParlay(
-                                    {
-                                      week: this.props.currentWeek,
-                                      season: this.props.currentYear,
-                                      user: this.props.user._id,
-                                      uniqueId: `${this.props.user._id}-${this.props.currentWeek}`,
-                                    },
-                                    this.props.token,
-                                  )
-                                  if (respSaveParlay) {
-                                    console.log('respSaveParlay', JSON.stringify(respSaveParlay.data, null, 2))
-                                    this.gamesAndBets()
-                                  }
+                        {item.value === 'pick3' && this.state.off === false && (
+                          <TouchableOpacity
+                            style={{
+                              alignSelf: 'center',
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              marginTop: 10,
+                              marginBottom: 20,
+                            }}>
+                            <Switch
+                              value={this.state.isSwitchOn}
+                              color={jaune}
+                              style={{}}
+                              onValueChange={() => {
+                                if (!this.state.off) {
+                                  this.setState({ isSwitchOn: !this.state.isSwitchOn }, async () => {
+                                    let ply = this.state.allMyParlays.filter(
+                                      i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
+                                    )
+                                    if (this.state.allMyParlays && ply.length === 1) {
+                                      const respDeleteParlay = await deleteParlay(ply[0]._id, this.props.token)
+                                      if (respDeleteParlay) {
+                                        // console.log('respMyParlays', JSON.stringify(respDeleteParlay.data, null, 2))
+                                        this.gamesAndBets()
+                                      }
+                                    } else {
+                                      const respSaveParlay = await saveParlay(
+                                        {
+                                          week: this.props.currentWeek,
+                                          season: this.props.currentYear,
+                                          user: this.props.user._id,
+                                          uniqueId: `${this.props.user._id}-${this.props.currentWeek}`,
+                                        },
+                                        this.props.token,
+                                      )
+                                      if (respSaveParlay) {
+                                        // console.log('respSaveParlay', JSON.stringify(respSaveParlay.data, null, 2))
+                                        this.gamesAndBets()
+                                      }
+                                    }
+                                  })
                                 }
-                              })
-                            }
-                          }}>
-                          <Text style={{ color: jaune, marginLeft: 10, fontSize: RFValue(12) }}>PARLAY FREE PICKS</Text>
-                        </TouchableOpacity>
-                        <PopoverController>
-                          {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
-                            <React.Fragment>
-                              <Ionicons
-                                name="ios-information-circle-outline"
-                                size={24}
-                                style={{ marginLeft: 10 }}
-                                color={jaune}
-                                ref={setPopoverAnchor}
-                                onPress={openPopover}
-                              />
-                              <Popover
-                                placement="top"
-                                contentStyle={styles.content}
-                                arrowStyle={styles.arrow}
-                                backgroundStyle={styles.background}
-                                visible={popoverVisible}
-                                onClose={closePopover}
-                                fromRect={popoverAnchorRect}
-                                supportedOrientations={['portrait', 'landscape']}>
-                                <Text style={{ width: 140, fontSize: RFValue(10) }}>
-                                  Group free games together to win bonus points. Must win all free games to win parlay
-                                </Text>
-                              </Popover>
-                            </React.Fragment>
-                          )}
-                        </PopoverController>
-                      </TouchableOpacity>
-                    )}
-                    {item.value === 'pick3' && this.state.off === true && (
-                      <View
-                        style={{
-                          alignSelf: 'center',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          marginTop: 20,
-                          marginBottom: 30,
-                        }}>
-                        <Switch value={this.state.isSwitchOn} color={jaune} disabled />
-                        <View>
-                          <Text style={{ color: jaune, marginLeft: 10, fontSize: RFValue(12) }}>PARLAY FREE PICKS</Text>
-                        </View>
+                              }}
+                            />
+                            <TouchableOpacity
+                              onPress={() => {
+                                if (!this.state.off && this.props.seasonStatus !== 'PREPARING') {
+                                  this.setState({ isSwitchOn: !this.state.isSwitchOn }, async () => {
+                                    let ply = this.state.allMyParlays.filter(
+                                      i => i.week === this.props.currentWeek && i.season === this.props.currentYear,
+                                    )
+                                    if (this.state.allMyParlays && ply.length === 1) {
+                                      const respDeleteParlay = await deleteParlay(ply[0]._id, this.props.token)
+                                      if (respDeleteParlay) {
+                                        // console.log('respMyParlays', JSON.stringify(respDeleteParlay.data, null, 2))
+                                        this.gamesAndBets()
+                                      }
+                                    } else {
+                                      const respSaveParlay = await saveParlay(
+                                        {
+                                          week: this.props.currentWeek,
+                                          season: this.props.currentYear,
+                                          user: this.props.user._id,
+                                          uniqueId: `${this.props.user._id}-${this.props.currentWeek}`,
+                                        },
+                                        this.props.token,
+                                      )
+                                      if (respSaveParlay) {
+                                        console.log('respSaveParlay', JSON.stringify(respSaveParlay.data, null, 2))
+                                        this.gamesAndBets()
+                                      }
+                                    }
+                                  })
+                                }
+                              }}>
+                              <Text style={{ color: jaune, marginLeft: 10, fontSize: RFValue(12) }}>
+                                PARLAY FREE PICKS
+                              </Text>
+                            </TouchableOpacity>
+                            <PopoverController>
+                              {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
+                                <React.Fragment>
+                                  <Ionicons
+                                    name="ios-information-circle-outline"
+                                    size={24}
+                                    style={{ marginLeft: 10 }}
+                                    color={jaune}
+                                    ref={setPopoverAnchor}
+                                    onPress={openPopover}
+                                  />
+                                  <Popover
+                                    placement="top"
+                                    contentStyle={styles.content}
+                                    arrowStyle={styles.arrow}
+                                    backgroundStyle={styles.background}
+                                    visible={popoverVisible}
+                                    onClose={closePopover}
+                                    fromRect={popoverAnchorRect}
+                                    supportedOrientations={['portrait', 'landscape']}>
+                                    <Text style={{ width: 140, fontSize: RFValue(10) }}>
+                                      Group free games together to win bonus points. Must win all free games to win
+                                      parlay
+                                    </Text>
+                                  </Popover>
+                                </React.Fragment>
+                              )}
+                            </PopoverController>
+                          </TouchableOpacity>
+                        )}
+                        {item.value === 'pick3' && this.state.off === true && (
+                          <View
+                            style={{
+                              alignSelf: 'center',
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              marginTop: 20,
+                              marginBottom: 30,
+                            }}>
+                            <Switch value={this.state.isSwitchOn} color={jaune} disabled />
+                            <View>
+                              <Text style={{ color: jaune, marginLeft: 10, fontSize: RFValue(12) }}>
+                                PARLAY FREE PICKS
+                              </Text>
+                            </View>
 
-                        <PopoverController>
-                          {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
-                            <React.Fragment>
-                              <Ionicons
-                                name="ios-information-circle-outline"
-                                size={24}
-                                style={{ marginLeft: 10 }}
-                                color={jaune}
-                                ref={setPopoverAnchor}
-                                onPress={openPopover}
-                              />
-                              <Popover
-                                placement="top"
-                                contentStyle={styles.content}
-                                arrowStyle={styles.arrow}
-                                backgroundStyle={styles.background}
-                                visible={popoverVisible}
-                                onClose={closePopover}
-                                fromRect={popoverAnchorRect}
-                                supportedOrientations={['portrait', 'landscape']}>
-                                <Text style={{ width: 140, fontSize: RFValue(14) }}>
-                                  Group free games together to win bonus points. Must win all games in parlay
-                                </Text>
-                              </Popover>
-                            </React.Fragment>
-                          )}
-                        </PopoverController>
+                            <PopoverController>
+                              {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
+                                <React.Fragment>
+                                  <Ionicons
+                                    name="ios-information-circle-outline"
+                                    size={24}
+                                    style={{ marginLeft: 10 }}
+                                    color={jaune}
+                                    ref={setPopoverAnchor}
+                                    onPress={openPopover}
+                                  />
+                                  <Popover
+                                    placement="top"
+                                    contentStyle={styles.content}
+                                    arrowStyle={styles.arrow}
+                                    backgroundStyle={styles.background}
+                                    visible={popoverVisible}
+                                    onClose={closePopover}
+                                    fromRect={popoverAnchorRect}
+                                    supportedOrientations={['portrait', 'landscape']}>
+                                    <Text style={{ width: 140, fontSize: RFValue(14) }}>
+                                      Group free games together to win bonus points. Must win all games in parlay
+                                    </Text>
+                                  </Popover>
+                                </React.Fragment>
+                              )}
+                            </PopoverController>
+                          </View>
+                        )}
                       </View>
-                    )}
-                  </View>
-                )
-              }
-            })}
+                    )
+                  }
+                })}
+              </View>
+            ) : (
+              <Text style={{ color: jaune, marginLeft: 10, fontSize: RFValue(12), marginTop: 200 }}>
+                Please select your CFG conference in the feed to be able to pick.
+              </Text>
+            )}
           </View>
         )}
         {this.props.seasonStatus === 'CHAMPIONSHIP' && <Championship />}

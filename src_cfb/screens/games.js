@@ -44,13 +44,16 @@ class Spreads extends Component {
       favorites: this.props.user.favoritesCFB ? this.props.user.favoritesCFB : [],
       weekSelected: this.props.currentWeek,
       weekGames: [],
+      loading: true,
     }
   }
   async componentDidMount() {
     if (this.props.user.conference) {
       this.props.getConferencesTeams('ALL', this.props.token)
     }
-
+    setTimeout(() => {
+      this.setState({ loading: false })
+    }, 6000)
     this.getWeekG()
   }
 
@@ -67,7 +70,10 @@ class Spreads extends Component {
       datas = datas.sort(function (a, b) {
         return new Date(a.Day) - new Date(b.Day)
       })
-      this.setState({ weekGames: datas })
+      // console.log(JSON.stringify(datas[0], null, 2))
+      this.setState({
+        weekGames: datas.filter(f => f.AwayTeamInfo.Conference !== null && f.HomeTeamInfo.Conference !== null),
+      })
     }
   }
   componentDidUpdate(prevProps, prevState) {
@@ -146,120 +152,130 @@ class Spreads extends Component {
         />
         {this.props.seasonStatus === 'STARTED' && (
           <View style={{}}>
-            <ScrollView
-              refreshControl={
-                <RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh}>
-                  <Text style={{ alignSelf: 'center', color: '#fff', fontSize: 17, marginBottom: 3 }}>
-                    {this.state.week + ' refreshing...'}
-                  </Text>
-                </RefreshControl>
-              }>
-              {this.bestGroupBy(this.state.weekGames, this.state.ConferenceName).map((item, index) => (
-                <View key={index}>
-                  <View
-                    style={{
-                      height: 31,
-                      backgroundColor: '#edd798',
-                      justifyContent: 'center',
-                      paddingHorizontal: 10,
-                      marginBottom: 20,
-                    }}>
-                    <Text
-                      style={{
-                        color: '#191919',
-                        fontSize: 11,
-                        fontWeight: '700',
-                      }}>
-                      {item.date}
+            {this.state.weekGames.length > 0 ? (
+              <ScrollView
+                refreshControl={
+                  <RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh}>
+                    <Text style={{ alignSelf: 'center', color: '#fff', fontSize: 17, marginBottom: 3 }}>
+                      {this.state.week + ' refreshing...'}
                     </Text>
-                  </View>
-                  {item.games
-                    //.filter(i => i.Status === "Scheduled")
-                    .map((item2, index2) => {
-                      return (
-                        <TouchableOpacity
-                          key={index2}
-                          style={{
-                            paddingVertical: 5,
-                            backgroundColor: gris,
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            flexDirection: 'row',
-                            paddingHorizontal: 15,
-                          }}>
-                          <Text
-                            style={{
-                              width: '60%',
-                              color: jaune,
-                              color: '#edd798',
-                              fontFamily: 'Arial',
-                              fontSize: RFValue(11),
-                              fontWeight: '600',
-                            }}>
-                            {gameString(item2)}
-                          </Text>
-                          <Text
-                            style={{
-                              color: jaune,
-                              color: '#edd798',
-                              fontFamily: 'Arial',
-                              fontSize: RFValue(11),
-                              fontWeight: '600',
-                            }}>
-                            {new Date(item2.DateTime).toLocaleTimeString()}
-                          </Text>
-
+                  </RefreshControl>
+                }>
+                {this.bestGroupBy(this.state.weekGames, this.state.ConferenceName).map((item, index) => (
+                  <View key={index}>
+                    <View
+                      style={{
+                        height: 31,
+                        backgroundColor: '#edd798',
+                        justifyContent: 'center',
+                        paddingHorizontal: 10,
+                        marginBottom: 20,
+                      }}>
+                      <Text
+                        style={{
+                          color: '#191919',
+                          fontSize: 11,
+                          fontWeight: '700',
+                        }}>
+                        {item.date}
+                      </Text>
+                    </View>
+                    {item.games
+                      //.filter(i => i.Status === "Scheduled")
+                      .map((item2, index2) => {
+                        return (
                           <TouchableOpacity
-                            style={{ paddingHorizontal: 10 }}
-                            onPress={() => {
-                              if (this.props.user && this.props.user.conferenceCFB) {
-                                if (
-                                  this.state.favorites.filter(a => a.GlobalGameID === item2.GlobalGameID).length == 0
-                                ) {
-                                  if (this.props.user.conferenceCFB === this.props.conferenceTeams.Conference) {
-                                    item2.power = true
-                                  } else {
-                                    item2.power = false
-                                  }
-                                  if (item2.AwayTeamMoneyLine !== null && item2.HomeTeamMoneyLine !== null)
-                                    this.state.favorites.push(item2)
-                                  else alert("You can't put this game on favorite yet. No spread or no over/under.")
-                                } else {
-                                  _.remove(this.state.favorites, n => {
-                                    return n.GlobalGameID === item2.GlobalGameID
-                                  })
-                                }
-                                this.setState({ favoritesCFB: this.state.favorites }, () => {
-                                  this.props.updateUserInfo(
-                                    {
-                                      favoritesCFB: this.state.favorites,
-                                    },
-                                    this.props.user.id,
-                                    this.props.token,
-                                  )
-                                })
-                              } else {
-                                alert('Please select your conference in the feeds')
-                              }
+                            key={index2}
+                            style={{
+                              paddingVertical: 5,
+                              backgroundColor: gris,
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              flexDirection: 'row',
+                              paddingHorizontal: 15,
                             }}>
-                            <Ionicons
-                              size={RFValue(26)}
-                              name={'ios-star'}
-                              style={{}}
-                              color={
-                                this.state.favorites.filter(a => a.GlobalGameID === item2.GlobalGameID).length > 0
-                                  ? jaune
-                                  : 'rgb(127,10,57)'
-                              }
-                            />
+                            <Text
+                              style={{
+                                width: '60%',
+                                color: jaune,
+                                color: '#edd798',
+                                fontFamily: 'Arial',
+                                fontSize: RFValue(11),
+                                fontWeight: '600',
+                              }}>
+                              {gameString(item2)}
+                            </Text>
+                            <Text
+                              style={{
+                                color: jaune,
+                                color: '#edd798',
+                                fontFamily: 'Arial',
+                                fontSize: RFValue(11),
+                                fontWeight: '600',
+                              }}>
+                              {new Date(item2.DateTime).toLocaleTimeString()}
+                            </Text>
+
+                            <TouchableOpacity
+                              style={{ paddingHorizontal: 10 }}
+                              onPress={() => {
+                                if (this.props.user && this.props.user.conferenceCFB) {
+                                  if (
+                                    this.state.favorites.filter(a => a.GlobalGameID === item2.GlobalGameID).length == 0
+                                  ) {
+                                    if (this.props.user.conferenceCFB === this.props.conferenceTeams.Conference) {
+                                      item2.power = true
+                                    } else {
+                                      item2.power = false
+                                    }
+                                    if (item2.AwayTeamMoneyLine !== null && item2.HomeTeamMoneyLine !== null)
+                                      this.state.favorites.push(item2)
+                                    else alert("You can't put this game on favorite yet. No spread or no over/under.")
+                                  } else {
+                                    _.remove(this.state.favorites, n => {
+                                      return n.GlobalGameID === item2.GlobalGameID
+                                    })
+                                  }
+                                  this.setState({ favoritesCFB: this.state.favorites }, () => {
+                                    this.props.updateUserInfo(
+                                      {
+                                        favoritesCFB: this.state.favorites,
+                                      },
+                                      this.props.user.id,
+                                      this.props.token,
+                                    )
+                                  })
+                                } else {
+                                  alert('Please select your conference in the feeds')
+                                }
+                              }}>
+                              <Ionicons
+                                size={RFValue(26)}
+                                name={'ios-star'}
+                                style={{}}
+                                color={
+                                  this.state.favorites.filter(a => a.GlobalGameID === item2.GlobalGameID).length > 0
+                                    ? jaune
+                                    : 'rgb(127,10,57)'
+                                }
+                              />
+                            </TouchableOpacity>
                           </TouchableOpacity>
-                        </TouchableOpacity>
-                      )
-                    })}
-                </View>
-              ))}
-              <View style={{ height: 40 }} />
-            </ScrollView>
+                        )
+                      })}
+                  </View>
+                ))}
+                <View style={{ height: 40 }} />
+              </ScrollView>
+            ) : (
+              <View>
+                {this.state.loading === false && (
+                  <Text style={{ color: jaune, fontSize: RFValue(16), alignSelf: 'center' }}>
+                    NO GAME FOUND YET FOR THIS WEEK
+                  </Text>
+                )}
+              </View>
+            )}
           </View>
         )}
         {this.props.seasonStatus === 'PREPARING' && (

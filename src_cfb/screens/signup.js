@@ -226,7 +226,6 @@ class signup extends Component {
                     keyboardType={'email-address'}
                     autoCapitalize={'none'}
                     placeholder={'Email'}
-                    placeholderTextColor={jaune}
                     ref={input => {
                       this.email = input
                     }}
