@@ -75,7 +75,7 @@ class Pick extends Component {
       weekGames: [],
       players: [],
       allMyParlays: [],
-      loading: true,
+      loading: false,
     }
   }
 

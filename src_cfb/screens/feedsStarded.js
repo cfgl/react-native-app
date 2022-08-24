@@ -13,7 +13,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import _ from 'lodash'
-
+import { getTeamById } from '../utils/functions'
 import moment from 'moment'
 import { noir, jaune, gris } from '../styles/colors'
 import { Ionicons } from 'react-native-vector-icons'
@@ -277,6 +277,7 @@ class feeds extends Component {
       })
 
     let res = dd.map(a => {
+      console.log(JSON.stringify(a.game, null, 2))
       return {
         game: a.game,
         nb: dd.filter(b => a.game && b.game && b.game.GameID === a.game.GameID).length,
@@ -846,14 +847,27 @@ class feeds extends Component {
                     width: RFValue(70),
                     height: RFValue(70),
                     borderRadius: 100,
-                    backgroundColor: jaune,
+                    backgroundColor: '#fff',
                     fontWeight: '900',
                   }}>
-                  <Text style={{ color: noir, fontSize: RFValue(14) }}>
+                  <Image
+                    source={{
+                      uri:
+                        popular.morning.game.HomeTeamMoneyLine < 0
+                          ? popular.morning.game.HomeTeamInfo.TeamLogoUrl
+                          : popular.morning.game.AwayTeamInfo.TeamLogoUrl,
+                    }}
+                    style={{
+                      width: RFValue(35),
+                      height: RFValue(35),
+                      borderRadius: 100,
+                    }}
+                  />
+                  {/* <Text style={{ color: noir, fontSize: RFValue(10) }}>
                     {popular.morning.game.HomeTeamMoneyLine < 0
                       ? popular.morning.game.HomeTeam
                       : popular.morning.game.AwayTeam}
-                  </Text>
+                  </Text> */}
                 </View>
                 <View style={{ width: 150, alignSelf: 'center', alignItems: 'center', justifyContent: 'center' }}>
                   <Text style={{ fontSize: 20, color: jaune }}>VS</Text>
@@ -866,13 +880,26 @@ class feeds extends Component {
                     width: RFValue(70),
                     height: RFValue(70),
                     borderRadius: 100,
-                    backgroundColor: jaune,
+                    backgroundColor: '#fff',
                   }}>
-                  <Text style={{ color: noir, fontSize: RFValue(14) }}>
+                  <Image
+                    source={{
+                      uri:
+                        popular.morning.game.HomeTeamMoneyLine < 0
+                          ? popular.morning.game.AwayTeamInfo.TeamLogoUrl
+                          : popular.morning.game.HomeTeamInfo.TeamLogoUrl,
+                    }}
+                    style={{
+                      width: RFValue(35),
+                      height: RFValue(35),
+                      borderRadius: 100,
+                    }}
+                  />
+                  {/* <Text style={{ color: noir, fontSize: RFValue(10) }}>
                     {popular.morning.game.AwayTeamMoneyLine > 0
                       ? popular.morning.game.AwayTeam
                       : popular.morning.game.HomeTeam}
-                  </Text>
+                  </Text> */}
                 </View>
               </View>
 
@@ -950,14 +977,27 @@ class feeds extends Component {
                     width: RFValue(70),
                     height: RFValue(70),
                     borderRadius: 100,
-                    backgroundColor: jaune,
+                    backgroundColor: '#fff',
                     fontWeight: '900',
                   }}>
-                  <Text style={{ color: noir, fontSize: RFValue(14) }}>
+                  <Image
+                    source={{
+                      uri:
+                        popular.afternoon.game.HomeTeamMoneyLine < 0
+                          ? popular.afternoon.game.HomeTeamInfo.TeamLogoUrl
+                          : popular.afternoon.game.AwayTeamInfo.TeamLogoUrl,
+                    }}
+                    style={{
+                      width: RFValue(35),
+                      height: RFValue(35),
+                      borderRadius: 100,
+                    }}
+                  />
+                  {/* <Text style={{ color: noir, fontSize: RFValue(10) }}>
                     {popular.afternoon.game.HomeTeamMoneyLine < 0
                       ? popular.afternoon.game.HomeTeam
                       : popular.afternoon.game.AwayTeam}
-                  </Text>
+                  </Text> */}
                 </View>
                 <View style={{ width: 150, alignSelf: 'center', alignItems: 'center', justifyContent: 'center' }}>
                   <Text style={{ fontSize: 20, color: jaune }}>VS</Text>
@@ -969,13 +1009,26 @@ class feeds extends Component {
                     width: RFValue(70),
                     height: RFValue(70),
                     borderRadius: 100,
-                    backgroundColor: jaune,
+                    backgroundColor: '#fff',
                   }}>
-                  <Text style={{ color: noir, fontSize: RFValue(14) }}>
+                  <Image
+                    source={{
+                      uri:
+                        popular.afternoon.game.HomeTeamMoneyLine < 0
+                          ? popular.afternoon.game.AwayTeamInfo.TeamLogoUrl
+                          : popular.afternoon.game.HomeTeamInfo.TeamLogoUrl,
+                    }}
+                    style={{
+                      width: RFValue(35),
+                      height: RFValue(35),
+                      borderRadius: 100,
+                    }}
+                  />
+                  {/* <Text style={{ color: noir, fontSize: RFValue(10) }}>
                     {popular.afternoon.game.AwayTeamMoneyLine > 0
                       ? popular.afternoon.game.AwayTeam
                       : popular.afternoon.game.HomeTeam}
-                  </Text>
+                  </Text> */}
                 </View>
               </View>
 
@@ -1054,15 +1107,28 @@ class feeds extends Component {
                     width: RFValue(70),
                     height: RFValue(70),
                     borderRadius: 100,
-                    backgroundColor: jaune,
+                    backgroundColor: '#fff',
                     fontWeight: '900',
                     lineHeight: 22,
                   }}>
-                  <Text style={{ color: noir, fontSize: RFValue(14) }}>
+                  <Image
+                    source={{
+                      uri:
+                        popular.night.game.HomeTeamMoneyLine < 0
+                          ? popular.night.game.HomeTeamInfo.TeamLogoUrl
+                          : popular.night.game.AwayTeamInfo.TeamLogoUrl,
+                    }}
+                    style={{
+                      width: RFValue(35),
+                      height: RFValue(35),
+                      borderRadius: 100,
+                    }}
+                  />
+                  {/* <Text style={{ color: noir, fontSize: RFValue(10) }}>
                     {popular.night.game.HomeTeamMoneyLine < 0
                       ? popular.night.game.HomeTeam
                       : popular.night.game.AwayTeam}
-                  </Text>
+                  </Text> */}
                 </View>
                 <View style={{ width: 150, alignSelf: 'center', alignItems: 'center', justifyContent: 'center' }}>
                   <Text style={{ fontSize: 20, color: jaune }}>VS</Text>
@@ -1075,13 +1141,26 @@ class feeds extends Component {
                     width: RFValue(70),
                     height: RFValue(70),
                     borderRadius: 100,
-                    backgroundColor: jaune,
+                    backgroundColor: '#fff',
                   }}>
-                  <Text style={{ color: noir, fontSize: RFValue(14) }}>
+                  <Image
+                    source={{
+                      uri:
+                        popular.night.game.HomeTeamMoneyLine < 0
+                          ? popular.night.game.AwayTeamInfo.TeamLogoUrl
+                          : popular.night.game.HomeTeamInfo.TeamLogoUrl,
+                    }}
+                    style={{
+                      width: RFValue(35),
+                      height: RFValue(35),
+                      borderRadius: 100,
+                    }}
+                  />
+                  {/* <Text style={{ color: noir, fontSize: RFValue(10) }}>
                     {popular.night.game.AwayTeamMoneyLine > 0
                       ? popular.night.game.AwayTeam
                       : popular.night.game.HomeTeam}
-                  </Text>
+                  </Text> */}
                 </View>
               </View>
 

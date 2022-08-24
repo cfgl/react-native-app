@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, ScrollView, RefreshControl, Text, StatusBar, StyleSheet } from 'react-native'
+import { View, ScrollView, RefreshControl, Image, Text, StatusBar, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 import { logoutUser } from '../redux/actions/user'
 import { KEYAPI } from '../redux/actionTypes'
@@ -10,6 +10,7 @@ import { RFPercentage, RFValue } from 'react-native-responsive-fontsize'
 import { getWeekGames } from '../services/games'
 import { SCREEN_WIDTH } from '../utils/variables'
 import { Searchbar } from 'react-native-paper'
+import { getTeamById } from '../utils/functions'
 
 const styles = StyleSheet.create({
   app: {
@@ -133,7 +134,14 @@ class Pick extends Component {
           {/* {this.props.lastUpdate.toLocaleString()} */}
         </Text>
         {this.state.games
+          .map(m => {
+            m.AwayTeamInfo = getTeamById(m.AwayTeamID)
+            m.HomeTeamInfo = getTeamById(m.HomeTeamID)
+
+            return m
+          })
           .filter(f => JSON.stringify(f).toLocaleLowerCase().includes(this.state.firstQuery.toLocaleLowerCase()))
+
           .map(game => {
             return (
               <View>
@@ -187,12 +195,22 @@ class Pick extends Component {
                         width: RFValue(80),
                         height: RFValue(80),
                         borderRadius: 100,
-                        backgroundColor: '#191919',
+                        backgroundColor: '#fff',
                         fontWeight: '900',
                       }}>
-                      <Text style={{ color: jaune, fontSize: RFValue(15) }}>
+                      <Image
+                        source={{
+                          uri: game.PointSpread < 0 ? game.HomeTeamInfo.TeamLogoUrl : game.AwayTeamInfo.TeamLogoUrl,
+                        }}
+                        style={{
+                          width: RFValue(35),
+                          height: RFValue(35),
+                          borderRadius: 100,
+                        }}
+                      />
+                      {/* <Text style={{ color: noir, fontSize: RFValue(10) }}>
                         {game.PointSpread && game.PointSpread < 0 ? game.HomeTeam : game.AwayTeam}
-                      </Text>
+                      </Text> */}
                     </View>
 
                     <View
@@ -234,11 +252,21 @@ class Pick extends Component {
                         width: RFValue(80),
                         height: RFValue(80),
                         borderRadius: RFValue(40),
-                        backgroundColor: '#191919',
+                        backgroundColor: '#fff',
                       }}>
-                      <Text style={{ color: jaune, fontSize: RFValue(15) }}>
+                      <Image
+                        source={{
+                          uri: game.PointSpread < 0 ? game.AwayTeamInfo.TeamLogoUrl : game.HomeTeamInfo.TeamLogoUrl,
+                        }}
+                        style={{
+                          width: RFValue(35),
+                          height: RFValue(35),
+                          borderRadius: 100,
+                        }}
+                      />
+                      {/* <Text style={{ color: noir, fontSize: RFValue(10) }}>
                         {game.PointSpread && game.PointSpread < 0 ? game.AwayTeam : game.HomeTeam}
-                      </Text>
+                      </Text> */}
                     </View>
                   </View>
                 </View>
