@@ -268,6 +268,7 @@ class feeds extends Component {
 
   popularGames = (x, y) => {
     let dd = this.state.weekBets
+      .filter(f => f.game && f.game && f.game.DateTime && f.game.DateTime.split('T')[1])
       .sort((a, b) => a.game && b.game && new Date(a.game.DateTime) - new Date(b.game.DateTime))
       .filter(a => {
         let h1 = moment(new Date('2019-01-01T' + a.game.DateTime.split('T')[1]))
@@ -291,6 +292,8 @@ class feeds extends Component {
 
   popularPick = (x, y) => {
     let dd = this.state.weekBets
+      .filter(f => f.game && f.game && f.game.DateTime && f.game.DateTime.split('T')[1])
+
       .sort((a, b) => a.game && b.game && new Date(a.game.DateTime) - new Date(b.game.DateTime))
       .filter(a => {
         let h1 = moment(new Date('2019-01-01T' + a.game.DateTime.split('T')[1]))
