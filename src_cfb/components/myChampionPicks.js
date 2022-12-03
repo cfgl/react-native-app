@@ -502,7 +502,7 @@ class MyPicks extends Component {
                 .filter(i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()))
                 .filter(
                   i =>
-                    f.Status !== 'Final' && //comment for testing
+                    i.Status !== 'Final' && //comment for testing
                     i.Status === 'Scheduled', //comment for testing
                 )
                 .filter(f => f.PointSpread !== null && f.OverUnder !== null)
@@ -536,11 +536,12 @@ class MyPicks extends Component {
                 ))}
               <View style={{ height: 1, width: '100%', backgroundColor: jaune }} />
               {/* Games list */}
-              {this.merge(data, this.props.favorites)
-                .filter(i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()))
-                .filter(i => i.Status === 'Scheduled' && f.Status !== 'Final')
-                .filter(f => f.PointSpread !== null && f.OverUnder !== null)
 
+              {this.merge(data, this.props.favorites)
+
+                .filter(i => JSON.stringify(i).toLowerCase().includes(firstQuery.toLowerCase()))
+                .filter(i => i.Status === 'Scheduled' && i.Status !== 'Final')
+                .filter(f => f.PointSpread !== null && f.OverUnder !== null)
                 .map((item, index) => (
                   <GameItem
                     key={index}

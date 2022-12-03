@@ -58,7 +58,7 @@ class Shortlist extends Component {
     }, 2000)
   }
   render() {
-    let bindingConf = this.props.weekstartdate[this.props.currentWeek - 1].conference
+    let bindingConf = this.props.currentWeek < 14 && this.props.weekstartdate[this.props.currentWeek - 1].conference
     bindingConf = bindingConf === 'Power Conf' ? this.props.user.conferenceCFB : bindingConf
 
     return (
