@@ -222,7 +222,6 @@ export const loginUser = (email, password) => {
           type: SET_USER,
           data: { user: response.data.user, token: response.data.jwt },
         })
-
         dispatch(setUserStatus('SUCCESSED_LOGIN'))
       })
       .catch(function (error) {

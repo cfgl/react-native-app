@@ -548,7 +548,7 @@ class profileTab extends Component {
         <ScrollView horizontal style={{ backgroundColor: '#191919', height: 110 }}>
           <View style={{ paddingHorizontal: 4, alignSelf: 'center' }}>
             <View style={{ flexDirection: 'row' }}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(a => (
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(a => (
                 <View
                   key={a}
                   style={{
@@ -565,7 +565,7 @@ class profileTab extends Component {
               ))}
             </View>
             <View style={{ flexDirection: 'row' }}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(a => (
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(a => (
                 <View
                   key={a}
                   style={{

@@ -21,7 +21,7 @@ import { SERVER } from '../redux/actionTypes'
 import { Snackbar } from 'react-native-paper'
 import axios from 'axios'
 import { divisionGroup } from '../datas/conference'
-import { logoutUser, updateUserInfo, getConferences } from '../redux/actions/user'
+import { logoutUser, updateUserInfo, getConferences, loginUser } from '../redux/actions/user'
 import { jaune, noir, gris } from '../styles/colors'
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from '../utils/variables'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -45,11 +45,13 @@ class Profile extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      badpassword: false,
       visibleSnack: false,
       snackbarText: '',
       password: '',
       passwordC: '',
       visible: false,
+      visibleDel: false,
       imageLoading: false,
       avatarSource: this.props.user.avatar && this.props.user.avatar.url ? { uri: this.props.user.avatar.url } : null,
     }
@@ -57,6 +59,10 @@ class Profile extends Component {
   }
   _showModal = () => this.setState({ visible: true })
   _hideModal = () => this.setState({ visible: false })
+
+  _showModalDelete = () => this.setState({ visibleDel: true })
+  _hideModalDelete = () => this.setState({ visibleDel: false })
+
   getImage = () => {}
   render() {
     return (
@@ -159,7 +165,7 @@ class Profile extends Component {
               fontSize: RFValue(15),
               fontWeight: '700',
             }}>
-            {this.props.user.fullname}
+            {this.props.user && this.props.user.fullname ? this.props.user.fullname : ''}
           </Text>
           <Text
             style={{
@@ -170,7 +176,7 @@ class Profile extends Component {
               fontWeight: '400',
               marginBottom: 20,
             }}>
-            {`${this.props.user.city}, ${this.props.user.state} `}
+            {this.props.user.state && this.props.user.city ? `${this.props.user.city}, ${this.props.user.state}` : ''}
           </Text>
         </ImageBackground>
         <ScrollView>
@@ -245,6 +251,29 @@ class Profile extends Component {
             </Text>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            onPress={() => this._showModalDelete()}
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              height: 50,
+              width: '100%',
+              backgroundColor: gris,
+              alignItems: 'center',
+              paddingHorizontal: 20,
+              marginTop: 10,
+            }}>
+            <Text
+              style={{
+                color: jaune,
+                fontSize: RFValue(15),
+                fontFamily: 'monda',
+                fontWeight: '400',
+                width: '90%',
+              }}>
+              {`Delete my account`}
+            </Text>
+          </TouchableOpacity>
           <View style={{ height: 150 }}></View>
         </ScrollView>
 
@@ -270,27 +299,17 @@ class Profile extends Component {
                 Close
               </Text>
             </TouchableOpacity>
-
-            <View
-              style={{
-                width: '100%',
-                backgroundColor: gris,
-                marginBottom: 10,
-                paddingVertical: 10,
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingHorizontal: 10,
-                flexDirection: 'row',
-              }}>
+            <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 15 }}>
               <Text
                 style={{
-                  width: '25%',
+                  alignSelf: 'flex-start',
                   color: jaune,
                   fontFamily: 'Arial',
-                  fontSize: RFValue(10),
+                  fontSize: RFValue(13),
                   fontWeight: '400',
+                  marginBottom: 3,
                 }}>
-                {'Password'}
+                {'New password'}
               </Text>
               <TextInput
                 autoCorrect={false}
@@ -298,37 +317,28 @@ class Profile extends Component {
                 secureTextEntry={true}
                 style={{
                   color: gris,
-                  width: '75%',
+                  width: '100%',
                   backgroundColor: jaune,
                   height: 40,
                   fontSize: 15,
                   paddingHorizontal: 10,
                   textAlign: 'left',
+                  marginBottom: 10,
                 }}
                 value={this.state.password}
                 onChangeText={password => this.setState({ password: password })}
               />
-            </View>
-            <View
-              style={{
-                width: '100%',
-                backgroundColor: gris,
-                marginBottom: 10,
-                paddingVertical: 10,
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingHorizontal: 10,
-                flexDirection: 'row',
-              }}>
+
               <Text
                 style={{
-                  width: '25%',
+                  alignSelf: 'flex-start',
                   color: jaune,
                   fontFamily: 'Arial',
-                  fontSize: RFValue(10),
+                  fontSize: RFValue(13),
                   fontWeight: '400',
+                  marginBottom: 3,
                 }}>
-                {'Confirmation'}
+                {'Confirm new password'}
               </Text>
               <TextInput
                 autoCorrect={false}
@@ -336,7 +346,7 @@ class Profile extends Component {
                 secureTextEntry={true}
                 style={{
                   color: gris,
-                  width: '75%',
+                  width: '100%',
                   backgroundColor: jaune,
                   height: 40,
                   fontSize: 15,
@@ -346,59 +356,63 @@ class Profile extends Component {
                 value={this.state.passwordC}
                 onChangeText={passwordC => this.setState({ passwordC: passwordC })}
               />
-            </View>
-            <TouchableOpacity
-              disabled={!this.state.password || !this.state.passwordC || this.state.password !== this.state.passwordC}
-              style={{
-                width: '80%',
-                backgroundColor: gris,
-                marginBottom: 10,
-                paddingVertical: 10,
-                justifyContent: 'center',
-                alignItems: 'center',
-                alignSelf: 'center',
-              }}
-              onPress={() => {
-                let self = this
-                axios
-                  .put(
-                    `${SERVER}/users/${this.props.user.id}`,
-                    { password: this.state.password },
-                    {
-                      headers: {
-                        Authorization: `Bearer ${this.props.token}`,
+
+              <TouchableOpacity
+                disabled={!this.state.password || !this.state.passwordC || this.state.password !== this.state.passwordC}
+                style={{
+                  width: '80%',
+                  marginTop: 10,
+                  backgroundColor: gris,
+                  marginBottom: 10,
+                  padding: 15,
+                  marginTop: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  alignSelf: 'center',
+                  borderRadius: 5,
+                }}
+                onPress={() => {
+                  let self = this
+                  axios
+                    .put(
+                      `${SERVER}/users/${this.props.user.id}`,
+                      { password: this.state.password },
+                      {
+                        headers: {
+                          Authorization: `Bearer ${this.props.token}`,
+                        },
                       },
-                    },
-                  )
-                  .then(function (response) {
-                    if (response.data && response.data._id) {
+                    )
+                    .then(function (response) {
+                      if (response.data && response.data._id) {
+                        self._hideModal()
+                        self.setState({
+                          visibleSnack: true,
+                          snackbarText: 'Your password has been changed',
+                        })
+                      }
+                    })
+                    .catch(function (error) {
                       self._hideModal()
                       self.setState({
                         visibleSnack: true,
-                        snackbarText: 'Your password has been changed',
+                        snackbarText: error.response.data.message[0].messages[0].message,
                       })
-                    }
-                  })
-                  .catch(function (error) {
-                    self._hideModal()
-                    self.setState({
-                      visibleSnack: true,
-                      snackbarText: error.response.data.message[0].messages[0].message,
+                      //alert(JSON.stringify(error.message))
+                      console.log(JSON.stringify(error.response.data.message[0].messages[0].message))
                     })
-                    //alert(JSON.stringify(error.message))
-                    console.log(JSON.stringify(error.response.data.message[0].messages[0].message))
-                  })
-              }}>
-              <Text
-                style={{
-                  color: jaune,
-                  fontFamily: 'Arial',
-                  fontSize: RFValue(17),
-                  fontWeight: '400',
                 }}>
-                {'Change password'}
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={{
+                    color: jaune,
+                    fontFamily: 'Arial',
+                    fontSize: RFValue(14),
+                    fontWeight: '400',
+                  }}>
+                  {'Change password'}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
             {this.state.password && this.state.passwordC && this.state.password !== this.state.passwordC ? (
               <Text style={{ fontSize: 12, color: jaune, alignSelf: 'center' }}>Passwords are not match</Text>
@@ -406,30 +420,139 @@ class Profile extends Component {
           </View>
         </Modal>
 
-        {/* <ActionSheet
-          ref={(o) => (this.selectedConference = o)}
-          title={"PICK YOUR POWER DIVISION"}
-          options={divisionGroup().map((i) => i.DivisionName)}
-          cancelButtonIndex={divisionGroup().length - 1}
-          // destructiveButtonIndex={1}
-          onPress={(index) => {
-            if (index !== divisionGroup().length - 1)
-              this.setState(
-                {
-                  divisionCFB: divisionGroup()[index].DivisionName,
-                },
-                () => {
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.visibleDel}
+          onRequestClose={() => {
+            this._hideModalDelete()
+          }}>
+          <View
+            style={{
+              alignSelf: 'center',
+              padding: 10,
+              marginTop: 70,
+              // height: 300,
+              width: '80%',
+              borderRadius: 10,
+              backgroundColor: noir,
+            }}>
+            <TouchableOpacity onPress={this._hideModalDelete} style={{ padding: 20, alignSelf: 'flex-end' }}>
+              <Text style={{ color: 'red', fontSize: RFValue(15) }} onPress={this._hideModalDelete}>
+                Close
+              </Text>
+            </TouchableOpacity>
 
-                  this.props.updateUserInfo(
-                    { divisionCFB: divisionGroup()[index].DivisionName },
-                    this.props.user.id,
-                    this.props.token
-                  );
+            <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 15 }}>
+              <Text
+                style={{
+                  color: '#ffffff',
+                  fontFamily: 'Arial',
+                  fontSize: RFValue(11),
+                  fontWeight: '400',
+                  alignSelf: 'flex-start',
+                  marginBottom: 10,
+                }}>
+                {'Deleting your account will erase alll your picks history. Are you sure you want to proceed?'}
+              </Text>
+              <Text
+                style={{
+                  alignSelf: 'flex-start',
+                  color: jaune,
+                  fontFamily: 'Arial',
+                  fontSize: RFValue(13),
+                  fontWeight: '400',
+                  marginBottom: 3,
+                }}>
+                {'Password'}
+              </Text>
+              <TextInput
+                autoCorrect={false}
+                autoCapitalize={'none'}
+                secureTextEntry={true}
+                style={{
+                  color: gris,
+                  width: '100%',
+                  backgroundColor: jaune,
+                  height: 40,
+                  fontSize: 15,
+                  paddingHorizontal: 10,
+                  textAlign: 'left',
+                  marginBottom: 10,
+                }}
+                value={this.state.password}
+                onChangeText={password => this.setState({ password: password })}
+              />
+              {this.state.badpassword ? (
+                <Text style={{ fontSize: 10, color: jaune, alignSelf: 'center', marginVertical: 4 }}>
+                  The password is incorrect
+                </Text>
+              ) : null}
+              <TouchableOpacity
+                // disabled={!this.state.password || !this.state.passwordC || this.state.password !== this.state.passwordC}
+                style={{
+                  width: '80%',
+                  marginTop: 10,
+                  backgroundColor: gris,
+                  marginBottom: 10,
+                  padding: 15,
+                  marginTop: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  alignSelf: 'center',
+                  borderRadius: 5,
+                }}
+                onPress={() => {
+                  let self = this
 
-                }
-              );
-          }}
-        /> */}
+                  axios
+                    .post(`${SERVER}/auth/local/`, {
+                      identifier: self.props.user.email,
+                      password: self.state.password,
+                    })
+                    .then(function (response) {
+                      self.setState({ badpassword: false })
+
+                      const newUser = new Date().getTime()
+                      axios
+                        .put(
+                          `${SERVER}/users/${self.props.user.id}`,
+                          {
+                            email: `delete${newUser}@cfgl.com`,
+                            password: 'cfgl#2022#',
+                            username: newUser,
+                            city: '',
+                            state: '',
+                          },
+                          {
+                            headers: {
+                              Authorization: `Bearer ${response.data.jwt}`,
+                            },
+                          },
+                        )
+                        .then(function (response) {
+                          self.props.logoutUser()
+                        })
+                    })
+                    .catch(function (error) {
+                      console.log(error)
+
+                      self.setState({ badpassword: true })
+                    })
+                }}>
+                <Text
+                  style={{
+                    color: jaune,
+                    fontFamily: 'Arial',
+                    fontSize: RFValue(14),
+                    fontWeight: '400',
+                  }}>
+                  {'Delete my account'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         <Snackbar
           visible={this.state.visibleSnack}
@@ -554,6 +677,7 @@ const mapStateToProps = state => {
   return { user, logged, token, conferences }
 }
 export default connect(mapStateToProps, {
+  loginUser,
   logoutUser,
   updateUserInfo,
   getConferences,

@@ -791,7 +791,7 @@ class feeds extends Component {
             </View>
           )}
 
-          {popular && popular.morning && popular.morning.game ? (
+          {this.props.seasonStatus === 'STARTED' && popular && popular.morning && popular.morning.game ? (
             <View
               style={{
                 backgroundColor: noir,
@@ -922,7 +922,7 @@ class feeds extends Component {
             </View>
           ) : null}
 
-          {popular && popular.afternoon && popular.afternoon.game ? (
+          {this.props.seasonStatus === 'STARTED' && popular && popular.afternoon && popular.afternoon.game ? (
             <View
               style={{
                 backgroundColor: noir,
@@ -1051,7 +1051,7 @@ class feeds extends Component {
             </View>
           ) : null}
 
-          {popular && popular.night && popular.night.game ? (
+          {this.props.seasonStatus === 'STARTED' && popular && popular.night && popular.night.game ? (
             <View
               style={{
                 backgroundColor: noir,
